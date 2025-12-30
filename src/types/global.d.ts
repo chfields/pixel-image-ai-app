@@ -9,6 +9,12 @@ declare global {
       readFile: (filePath: string | undefined) => Promise<string>;
       selectDirectory: () => Promise<string[]>;
     };
+    aiAPI: {
+      runPrompt: (prompt: string) => Promise<any>;
+      onResponseImage: (callback: (imageData: any) => void) => void;
+      onResponseCompleted: (callback: (data: { responseID: string }) => void) => void;
+      onReasoningSummaryDelta: (callback: (data: string) => void) => void;
+    };
   }
 }
 

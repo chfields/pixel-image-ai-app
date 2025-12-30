@@ -10,3 +10,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
         return ipcRenderer.invoke('select-directory');
     }
 });
+
+contextBridge.exposeInMainWorld('aiAPI', {
+    runPrompt: (prompt: string) => {
+        return ipcRenderer.invoke('run-prompt', prompt);
+    },
+    onResponseImage: (callback: (imageData: any) => void) => {
+        ipcRenderer.on('ai-response-image', (event, imageData) => {
+            callback(imageData);
+        });
+    },
+    onResponseCompleted: (callback: (data: { responseID: string }) => void) => {
+        ipcRenderer.on('ai-response-completed', (event, data) => {
+            callback(data);
+        });
+    },
+    onReasoningSummaryDelta: (callback: (data: any) => void) => {
+        ipcRenderer.on('ai-reasoning-summary-delta', (event, data) => {
+            callback(data);
+        });
+    }
+});

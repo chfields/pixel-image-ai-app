@@ -1,14 +1,64 @@
-import { Card, Textarea } from "@heroui/react";
+import { Button, Card, CardFooter, Spinner, Textarea } from "@heroui/react";
+import { FC, useEffect, useState } from "react";
+import Reasoning from "./ReasoningViewer";
+import ReasoningViewer from "./ReasoningViewer";
 
-const Prompt: React.FC = () => {
+const Prompt: FC = () => {
+  const [prompt, setPrompt] = useState<string>("");
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [reasoningSummary, setReasoningSummary] = useState<string>("");
+
+  const generateImage = () => {
+    setIsRunning(true);
+    setReasoningSummary("");
+    window.aiAPI
+      .runPrompt(prompt)
+      .then((data) => {
+        console.log("File data:", data);
+      })
+      .finally(() => {
+        setIsRunning(false);
+      });
+  };
+
+  useEffect(() => {
+    const handleResponseImage = (imageData: any) => {
+      console.log("Received image data:", imageData);
+      // Handle the received image data (e.g., display it in the UI)
+    };
+
+    const handleResponseCompleted = (data: { responseID: string }) => {
+      console.log("Response completed with ID:", data.responseID);
+      // Handle the completion of the response if needed
+    };
+
+    const handleReasoningSummaryDelta = (data: any) => {
+      console.log("Received reasoning summary delta:", data);
+      setReasoningSummary((prev) => prev + data.delta);
+    };
+
+    window.aiAPI.onReasoningSummaryDelta(handleReasoningSummaryDelta);
+    window.aiAPI.onResponseImage(handleResponseImage);
+    window.aiAPI.onResponseCompleted(handleResponseCompleted);
+  }, []);
+
   return (
     <div className="w-full p-4 rounded-md shadow-md">
       <div className="w-full flex items-center justify-center">
         <Card className="w-90 mb-4 p-4 dark:shadow-lg">
           <Textarea
+            value={prompt}
+            onValueChange={setPrompt}
             placeholder="Enter your prompt here..."
           />
+          <CardFooter className="flex items-center justify-between">
+            <Button color="primary" size="sm" onPress={generateImage}>
+              Generate
+            </Button>
+            <Spinner hidden={!isRunning} size="sm" />
+          </CardFooter>
         </Card>
+        <ReasoningViewer reasoningSummary={reasoningSummary} />
       </div>
     </div>
   );
