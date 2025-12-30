@@ -41,8 +41,8 @@ app.on("ready", () => {
   ipcMain.handle("run-prompt", (event, prompt) => {
     return AiApi.runPrompt(event, prompt);
   });
-  ipcMain.handle("process-image", (event, imageData, width, height, cropX, cropY) => {
-    return ImageApi.processImage(imageData, width, height, cropX, cropY);
+  ipcMain.handle("process-image", (event, imageData, imageOptions) => {
+      return ImageApi.processImage(imageData, imageOptions);
   });
   ipcMain.handle("to-pixels", (event, imageData) => {
     return ImageApi.toPixels(imageData);

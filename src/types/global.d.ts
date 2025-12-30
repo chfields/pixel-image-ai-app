@@ -16,7 +16,7 @@ declare global {
       onReasoningSummaryDelta: (callback: (data: string) => void) => void;
     };
     imageAPI: {
-      processImage: (imageData: string, width: number, height: number, cropX: number, cropY: number) => Promise<string>;
+      processImage: (imageData: string, imageOptions: ImageOptions) => Promise<string>;
       toPixels: (imageData: string) => Promise<{ data: Buffer; info: { width: number; height: number; channels: number } }>;
     };
   }

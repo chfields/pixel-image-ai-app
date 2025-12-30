@@ -4,12 +4,14 @@ import Cropper from "react-easy-crop";
 const DEFAULT_WIDTH = 16;
 const DEFAULT_HEIGHT = 50;
 
-const PreviewImage: FC<{ image: string; width: number; height: number; setSizedImage: (image: string) => void }> = ({
-  image,
-  width,
-  height,
-  setSizedImage,
-}) => {
+const PreviewImage: FC<{
+  image: string;
+  width: number;
+  height: number;
+  setSizedImage: (image: string) => void;
+  className?: string;
+  dimensions: { width: number; height: number };
+}> = ({ image, width, height, setSizedImage, className, dimensions }) => {
   const [currentImage, setCurrentImage] = useState<string>(() => {
     return localStorage.getItem("generatedImage") || "";
   });
@@ -35,24 +37,31 @@ const PreviewImage: FC<{ image: string; width: number; height: number; setSizedI
     }
   }, []);
 
-  const onCropAreaChange = (croppedArea: CropArea, croppedAreaPixels: CropArea) => {
+  const onCropAreaChange = (
+    croppedArea: CropArea,
+    croppedAreaPixels: CropArea
+  ) => {
     // You can use croppedAreaPixels to get the cropped area in pixels
     // console.log(croppedAreaPixels);
     window.imageAPI
-      .processImage(
-        currentImage,
-        width || DEFAULT_WIDTH,
-        height || DEFAULT_HEIGHT,
-        (croppedAreaPixels.x / (croppedAreaPixels.width + croppedAreaPixels.x)) * 100,
-        (croppedAreaPixels.y / (croppedAreaPixels.height + croppedAreaPixels.y)) * 100
-      )
+      .processImage(currentImage, {
+        cropX: croppedArea.x,
+        cropY: croppedArea.y,
+        zoom,
+        width: croppedArea.width,
+        height: croppedArea.height,
+        sizeWidth: dimensions.width,
+        algorithm: "nearest",
+      })
       .then((processedImage: string) => {
         setSizedImage(processedImage);
       });
   };
 
   return (
-    <div className="flex flex-row w-full items-center justify-center relative h-[300px] w-[100px] bg-gray-200 dark:bg-gray-800 border border-gray-400 dark:border-gray-600">
+    <div
+      className={`${className} flex flex-row w-full items-center justify-center relative h-[300px] w-[100px] bg-gray-200 dark:bg-gray-800 border border-gray-400 dark:border-gray-600`}
+    >
       <Cropper
         image={`data:image/png;base64,${currentImage}`}
         crop={crop}

@@ -1,15 +1,14 @@
-import sharp from "sharp";
+import sharp, { kernel } from "sharp";
 
 const ImageApi = {
   resizeImage: async (
     imageData: string,
     width: number,
-    height: number,
     kernel: keyof typeof sharp.kernel = sharp.kernel.nearest
   ): Promise<string> => {
     const buffer = Buffer.from(imageData, "base64");
     const resizedBuffer = await sharp(buffer)
-      .resize(width, height, {
+      .resize(width, null, {
         fit: sharp.fit.outside,
         kernel,
         withoutEnlargement: false,
@@ -44,11 +43,9 @@ const ImageApi = {
   },
   processImage: async (
     imageData: string,
-    width: number,
-    height: number,
-    cropX: number,
-    cropY: number
+    imageOptions: ImageOptions
   ): Promise<string> => {
+    const { cropX, cropY, zoom, width, height, sizeWidth, algorithm } = imageOptions;
     console.log(
       `Processing image with width: ${width}, height: ${height}, cropX: ${cropX}, cropY: ${cropY}`
     );
@@ -59,10 +56,14 @@ const ImageApi = {
       width,
       height
     );
+
+    const adjustedWidth =
+      sizeWidth == width ? Math.round(sizeWidth * zoom) : sizeWidth;
+
     const resizedImage = await ImageApi.resizeImage(
       croppedImage,
-      width,
-      height
+      adjustedWidth,
+      algorithm as keyof typeof kernel 
     );
     return resizedImage;
   },

@@ -1,5 +1,6 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+import { image } from '@heroui/theme/dist';
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {    
@@ -12,8 +13,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 });
 
 contextBridge.exposeInMainWorld('imageAPI', {
-    processImage: (imageData: string, width: number, height: number, cropX: number, cropY: number) => {
-        return ipcRenderer.invoke('process-image', imageData, width, height, cropX, cropY);
+    processImage: (imageData: string, imageOptions: ImageOptions) => {
+        return ipcRenderer.invoke('process-image', imageData, imageOptions);
     },
     toPixels: (imageData: string) => {
         return ipcRenderer.invoke('to-pixels', imageData);  
