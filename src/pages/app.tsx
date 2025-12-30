@@ -1,3 +1,4 @@
+import { Button } from "@heroui/react";
 import Prompt from "../components/Prompt";
 
 const App: React.FC = () => {
@@ -6,7 +7,8 @@ const App: React.FC = () => {
       <div className="w-full flex items-center justify-center">
         <Prompt />
       </div>
-    </div>
+
+      </div>
   );
 };
 
