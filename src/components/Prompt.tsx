@@ -1,9 +1,18 @@
-import { Button, Card, CardFooter, Spinner, Textarea } from "@heroui/react";
+import {
+  Button,
+  Card,
+  CardFooter,
+  image,
+  Spinner,
+  Textarea,
+} from "@heroui/react";
 import { FC, useEffect, useState } from "react";
 import Reasoning from "./ReasoningViewer";
 import ReasoningViewer from "./ReasoningViewer";
 
-const Prompt: FC = () => {
+const Prompt: FC<{
+  setImage: React.Dispatch<React.SetStateAction<string>>;
+}> = ({ setImage }) => {
   const [prompt, setPrompt] = useState<string>("");
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [reasoningSummary, setReasoningSummary] = useState<string>("");
@@ -25,6 +34,9 @@ const Prompt: FC = () => {
     const handleResponseImage = (imageData: any) => {
       console.log("Received image data:", imageData);
       // Handle the received image data (e.g., display it in the UI)
+      if (imageData) {
+        setImage(imageData.result);
+      }
     };
 
     const handleResponseCompleted = (data: { responseID: string }) => {
@@ -44,8 +56,8 @@ const Prompt: FC = () => {
 
   return (
     <div className="w-full p-4 rounded-md shadow-md">
-      <div className="w-full flex items-center justify-center">
-        <Card className="w-90 mb-4 p-4 dark:shadow-lg">
+      <div className="w-full flex items-start justify-center gap-4 flex-row">
+        <Card className="w-90 mb-4 p-4 dark:shadow-lg min-w-1/2">
           <Textarea
             value={prompt}
             onValueChange={setPrompt}
@@ -58,7 +70,11 @@ const Prompt: FC = () => {
             <Spinner hidden={!isRunning} size="sm" />
           </CardFooter>
         </Card>
-        <ReasoningViewer reasoningSummary={reasoningSummary} />
+        {reasoningSummary && reasoningSummary.length > 0 && (
+          <Card className="w-90 mb-4 p-4 dark:shadow-lg max-w-1/2">
+            <ReasoningViewer reasoningSummary={reasoningSummary} />
+          </Card>
+        )}
       </div>
     </div>
   );

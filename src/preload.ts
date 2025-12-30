@@ -26,7 +26,7 @@ contextBridge.exposeInMainWorld('aiAPI', {
         });
     },
     onReasoningSummaryDelta: (callback: (data: any) => void) => {
-        ipcRenderer.on('ai-reasoning-summary-delta', (event, data) => {
+        ipcRenderer.on('ai-response-reasoning-summary-text-delta', (event, data) => {
             callback(data);
         });
     }

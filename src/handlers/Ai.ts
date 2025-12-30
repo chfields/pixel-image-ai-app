@@ -95,6 +95,7 @@ export class AiApi {
     });
 
     for await (const chunk of response) {
+      console.log("Received chunk of type:", chunk.type);
       switch (chunk.type) {
         case "response.completed":
           AiApi.privateExtractImageFromResponse(event, chunk.response.output);
