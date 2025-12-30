@@ -11,6 +11,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }
 });
 
+contextBridge.exposeInMainWorld('imageAPI', {
+    processImage: (imageData: string, width: number, height: number, cropX: number, cropY: number) => {
+        return ipcRenderer.invoke('process-image', imageData, width, height, cropX, cropY);
+    },
+    toPixels: (imageData: string) => {
+        return ipcRenderer.invoke('to-pixels', imageData);  
+    }
+});
+
 contextBridge.exposeInMainWorld('aiAPI', {
     runPrompt: (prompt: string) => {
         return ipcRenderer.invoke('run-prompt', prompt);

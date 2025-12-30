@@ -4,10 +4,11 @@ import Cropper from "react-easy-crop";
 const DEFAULT_WIDTH = 16;
 const DEFAULT_HEIGHT = 50;
 
-const PreviewImage: FC<{ image: string; width: number; height: number }> = ({
+const PreviewImage: FC<{ image: string; width: number; height: number; setSizedImage: (image: string) => void }> = ({
   image,
   width,
   height,
+  setSizedImage,
 }) => {
   const [currentImage, setCurrentImage] = useState<string>(() => {
     return localStorage.getItem("generatedImage") || "";
@@ -37,6 +38,17 @@ const PreviewImage: FC<{ image: string; width: number; height: number }> = ({
   const onCropAreaChange = (croppedArea: CropArea, croppedAreaPixels: CropArea) => {
     // You can use croppedAreaPixels to get the cropped area in pixels
     // console.log(croppedAreaPixels);
+    window.imageAPI
+      .processImage(
+        currentImage,
+        width || DEFAULT_WIDTH,
+        height || DEFAULT_HEIGHT,
+        (croppedAreaPixels.x / (croppedAreaPixels.width + croppedAreaPixels.x)) * 100,
+        (croppedAreaPixels.y / (croppedAreaPixels.height + croppedAreaPixels.y)) * 100
+      )
+      .then((processedImage: string) => {
+        setSizedImage(processedImage);
+      });
   };
 
   return (
