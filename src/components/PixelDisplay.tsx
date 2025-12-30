@@ -73,12 +73,12 @@ export default function PixelDisplay({
       channels > 0 ? Math.floor(totalPixels / channels) : totalPixels;
 
     const h =
-      height ?? Math.max(1, Math.floor(pixelCount / Math.max(1, width)));
+      height ?? Math.max(pixelHeight, Math.floor(pixelCount / Math.max(1, width)));
 
     return { channels, pixelCount, height: h };
   }, [pixels, width, height]);
   const [sliderYValue, setSliderYValue] = React.useState<number>(
-    height
+    inferred.height ?? pixelHeight
   );
   const [sliderXValue, setSliderXValue] = React.useState<number>(0);
 
@@ -297,7 +297,7 @@ export default function PixelDisplay({
 
   return (
     <div className={className}>
-      <div className="flex flex-row items-center justify-center">
+      <div className="flex flex-row items-center justify-center h-full">
         <div
           role="img"
           aria-label="Pixel display"
@@ -358,7 +358,7 @@ export default function PixelDisplay({
           label="Y Position"
           aria-label="Y Position"
           orientation="vertical"
-          className="h-64 ml-4"
+          className="h-96 ml-4"
           defaultValue={inferred.height}
           minValue={0}
           maxValue={pixelHeight}

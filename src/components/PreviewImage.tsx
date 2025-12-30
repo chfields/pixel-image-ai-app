@@ -75,7 +75,7 @@ const PreviewImage: FC<{
         restrictPosition={true}
         onCropComplete={onCropAreaChange}
         classes={{
-          mediaClassName: "border border-gray-700",
+          // mediaClassName: "border border-gray-700",
         }}
         // objectFit="contain"
         showGrid={true}
