@@ -1,4 +1,4 @@
-import { Button, Card, CardHeader } from "@heroui/react";
+import { addToast, Button, Card, CardHeader } from "@heroui/react";
 import Prompt from "../components/Prompt";
 import { useCallback, useEffect, useState } from "react";
 import PreviewImage from "../components/PreviewImage";
@@ -8,6 +8,10 @@ const App: React.FC = () => {
   const [image, setImage] = useState<string>("");
   const [sizedImage, setSizedImage] = useState<string>("");
   const [pixels, setPixels] = useState<Uint8ClampedArray | null>(null);
+  const [currentDirectory, setCurrentDirectory] = useState<string>(() => {
+    return localStorage.getItem("currentDirectory") || "";
+  });
+
   const [pixelInfo, setPixelInfo] = useState<{
     width: number;
     height: number;
@@ -39,37 +43,46 @@ const App: React.FC = () => {
   }, [sizedImage]);
 
   const downloadEditedImage = useCallback(async () => {
-    // put pixels on canvas and download as png
-    const canvas = document.createElement("canvas");
-    canvas.width = pixelInfo.width || dimensions.width;
-    // calculate height from pixels length
-    const calcluatedHeight = pixels!.length / ((pixelInfo.width || dimensions.width) * 4);
-    canvas.height = calcluatedHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const imageData = new ImageData(
-      new Uint8ClampedArray(pixels!),
-      canvas.width,
-      calcluatedHeight,
-      {}
+    const png = await window.imageAPI.fromPixels(
+      pixels!,
+      {
+        width: pixelInfo!.width,
+        height: pixelInfo!.height,
+        channels: pixelInfo!.channels,
+      }
     );
-    ctx.putImageData(imageData, 0, 0);
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "resized_image.png";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }, "image/png");
-  }, [pixels, dimensions, pixelInfo]);
+    if (!currentDirectory) {
+      alert("Please select a directory first.");
+      return;
+    }
+    const fileName = `edited_image_${Date.now()}.png`;
+    await window.fileAPI.writeFileFromBase64(
+      currentDirectory,
+      fileName,
+      png
+    );
+    addToast({
+      // color: "success",
+      title: "Image Saved",
+      description: `Image saved as ${fileName} in ${currentDirectory}`
+    });
+  }, [pixels, dimensions, pixelInfo, currentDirectory]);
 
 
   return (
     <div className="w-full">
+      <Button
+        className="m-4"
+        onPress={async () => {
+          const directories = await window.fileAPI.selectDirectory();
+          if (directories.length > 0) {
+            setCurrentDirectory(directories[0]);
+            localStorage.setItem("currentDirectory", directories[0]);
+          }
+        }}
+      >
+        {currentDirectory ? `Directory: ${currentDirectory}` : "Select Directory"}
+      </Button>
       <div className="w-full flex items-center justify-center">
         <Prompt setImage={setImage} />
       </div>

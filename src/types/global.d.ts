@@ -5,9 +5,10 @@ export {};
 
 declare global {
   interface Window {
-    electronAPI: {
+    fileAPI: {
       readFile: (filePath: string | undefined) => Promise<string>;
       selectDirectory: () => Promise<string[]>;
+      writeFileFromBase64: (fileDirectory: string, fileName: string, data: string) => Promise<void>;
     };
     aiAPI: {
       runPrompt: (prompt: string) => Promise<any>;
@@ -18,6 +19,7 @@ declare global {
     imageAPI: {
       processImage: (imageData: string, imageOptions: ImageOptions) => Promise<string>;
       toPixels: (imageData: string) => Promise<{ data: Buffer; info: { width: number; height: number; channels: number } }>;
+      fromPixels: (data: Uint8ClampedArray, info: { width: number; height: number; channels: number }) => Promise<string>;
     };
   }
 }

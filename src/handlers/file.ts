@@ -21,6 +21,11 @@ export class FileApi {
     }
   }
 
+  static async writeFileFromBase64(fileDirectory: string, fileName: string, data: string): Promise<void> {
+    const buffer = Buffer.from(data, "base64");
+    fs.writeFileSync(`${fileDirectory}/${fileName}`, buffer);
+  }
+
   static async selectDirectory(): Promise<string[]> {
     const result = await dialog.showOpenDialog({
       properties: ["openDirectory"],

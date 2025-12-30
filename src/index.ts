@@ -38,6 +38,9 @@ app.on("ready", () => {
 
   ipcMain.handle("read-file", (event, filePath) => FileApi.readFile(filePath));
   ipcMain.handle("select-directory", () => FileApi.selectDirectory());
+  ipcMain.handle("write-file-from-base64", (event, fileDirectory: string, fileName: string, data: string) => {
+    return FileApi.writeFileFromBase64(fileDirectory, fileName, data);
+  });
   ipcMain.handle("run-prompt", (event, prompt) => {
     return AiApi.runPrompt(event, prompt);
   });
@@ -46,6 +49,9 @@ app.on("ready", () => {
   });
   ipcMain.handle("to-pixels", (event, imageData) => {
     return ImageApi.toPixels(imageData);
+  });
+  ipcMain.handle("from-pixels", (event, data, info) => {
+    return ImageApi.fromPixels(data, info);
   });
 });
 

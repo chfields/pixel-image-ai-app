@@ -1,4 +1,4 @@
-import sharp, { kernel } from "sharp";
+import sharp, { Channels, kernel } from "sharp";
 
 const ImageApi = {
   resizeImage: async (
@@ -45,7 +45,8 @@ const ImageApi = {
     imageData: string,
     imageOptions: ImageOptions
   ): Promise<string> => {
-    const { cropX, cropY, zoom, width, height, sizeWidth, algorithm } = imageOptions;
+    const { cropX, cropY, zoom, width, height, sizeWidth, algorithm } =
+      imageOptions;
     console.log(
       `Processing image with width: ${width}, height: ${height}, cropX: ${cropX}, cropY: ${cropY}`
     );
@@ -63,7 +64,7 @@ const ImageApi = {
     const resizedImage = await ImageApi.resizeImage(
       croppedImage,
       adjustedWidth,
-      algorithm as keyof typeof kernel 
+      algorithm as keyof typeof kernel
     );
     return resizedImage;
   },
@@ -81,6 +82,21 @@ const ImageApi = {
       info: pixelData.info,
     };
   },
+  fromPixels: async (
+    data: Uint8ClampedArray | Buffer,
+    info: { width: number; height: number; channels: number }
+  ): Promise<string> => {
+    const imageBuffer = await sharp(data, {
+      raw: {
+        width: info.width,
+        height: info.height,
+        channels: info.channels as Channels,
+      },
+    })
+      .png()
+      .toBuffer();
+    return imageBuffer.toString("base64");
+  }
 };
 
 export { ImageApi };
