@@ -10,7 +10,7 @@ const App: React.FC = () => {
       <div className="w-full flex items-center justify-center">
         <Prompt setImage={setImage} />
       </div>
-      <PreviewImage image={image} />
+      <PreviewImage image={image} width={16} height={50} />
     </div>
   );
 };
