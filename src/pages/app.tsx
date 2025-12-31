@@ -47,11 +47,11 @@ const App: React.FC = () => {
 
   const downloadEditedImage = useCallback(async () => {
     const png = await window.imageAPI.fromPixels(
-      pixels!,
+      pixels,
       {
-        width: pixelInfo!.width,
-        height: pixelInfo!.height,
-        channels: pixelInfo!.channels,
+        width: pixelInfo?.width,
+        height: pixelInfo?.height,
+        channels: pixelInfo?.channels,
       }
     );
     if (!appSettings?.directory) {
@@ -65,9 +65,9 @@ const App: React.FC = () => {
       png
     );
     addToast({
-      // color: "success",
+      color: "success",
       title: "Image Saved",
-      description: `Image saved as ${fileName} in ${appSettings!.directory}`
+      description: `Image saved as ${fileName} in ${appSettings?.directory}`
     });
   }, [pixels, pixelInfo, appSettings]);
 
@@ -92,7 +92,7 @@ const App: React.FC = () => {
             dimensions={dimensions}
           />
         </Card>
-        <Card title="Pixel Data Preview" className="min-w-1/2  p-4">
+        <Card title="Pixel Data Preview" className="w-full p-4">
           <CardHeader title="Pixel Data Preview">
             <Button size="sm" onPress={
               downloadEditedImage
@@ -108,9 +108,11 @@ const App: React.FC = () => {
             pixelSize={5}
             gap={8}
             showOutline={true}
-            isTree={false}
-            setPixels={(newPixels: Uint8ClampedArray) => {}}
-            className="w-full"
+            isTree={appSettings.elementType === "tree"}
+            setPixels={(newPixels: Uint8ClampedArray) => {
+              console.log("Updating pixels from PixelDisplay component");
+              setPixels(newPixels);
+            }}
           />
         </Card>
       </div>

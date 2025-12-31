@@ -305,10 +305,13 @@ export default function PixelDisplay({
           aria-label="Pixel display"
           style={{
             cursor: isEditing
-              ? "url('pencil.svg') 0 20, pointer"
-              : "url('dropper.svg') 0 20, crosshair",
+              ? "url('images/pencil.svg') 0 20, pointer"
+              : "url('images/dropper.svg') 0 20, crosshair",
             padding: "10px 10px",
-            overflow: "auto",
+            overflow: isTree ? "visible" : "auto",
+            // flexGrow: 1,
+            // alignItems: "center",
+            // justifyContent: "center",
           }}
         >
           {/* render each row as a grid of pixels. if it is a tree, the next row should be slightly offset to left and have a bigger gap */}

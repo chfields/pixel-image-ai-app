@@ -40,6 +40,7 @@ const PreviewImage: FC<{
   const onCropAreaChange = (
     croppedArea: CropArea
   ) => {
+    if (!croppedArea.width || !croppedArea.height) return;
     window.imageAPI
       .processImage(currentImage, {
         cropX: croppedArea.x,

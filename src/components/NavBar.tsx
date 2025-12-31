@@ -1,9 +1,14 @@
 import {
   Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   Input,
   Navbar,
   NavbarContent,
   NavbarItem,
+  type Selection,
 } from "@heroui/react";
 import {
   FC,
@@ -12,6 +17,7 @@ import {
   ChangeEvent,
   useState,
   KeyboardEvent,
+  useEffect,
 } from "react";
 
 type AppNavBarProps = {
@@ -29,7 +35,6 @@ const AppNavBar: FC<AppNavBarProps> = ({
   const [tempColumns, setTempColumns] = useState<string>(
     (settings.dimensions.width || 16).toString()
   );
-
   const setSettingsWithDimensions = (
     value: string,
     dimension: "height" | "width"
@@ -44,6 +49,18 @@ const AppNavBar: FC<AppNavBarProps> = ({
       newInt.toString()
     );
   };
+  const [elementType, setElementType] = useState<Selection>(
+    new Set([localStorage.getItem("elementType") || "tree"])
+  );
+
+  useEffect(() => {
+    const type = Array.from(elementType)[0] || "tree";
+    localStorage.setItem("elementType", type as string);
+    setSettings((prev) => ({
+      ...prev,
+      elementType: type as "tree" | "matrix",
+    }));
+  }, [elementType]);
 
   return (
     <Navbar isBlurred isBordered className="w-full justify-start">
@@ -103,6 +120,26 @@ const AppNavBar: FC<AppNavBarProps> = ({
             }}
           />
         </NavbarItem>
+        <Dropdown disableAnimation={true}>
+          <NavbarItem>
+            <DropdownTrigger>
+              <Button disableRipple variant="faded">
+                Element:{" "}
+                {Array.from(elementType)
+                  .join(", ")
+                  .replace(/^\w/, (c) => c.toUpperCase())}
+              </Button>
+            </DropdownTrigger>
+          </NavbarItem>
+          <DropdownMenu
+            selectedKeys={elementType}
+            onSelectionChange={setElementType}
+            selectionMode="single"
+          >
+            <DropdownItem key={"tree"}>Tree</DropdownItem>
+            <DropdownItem key={"matrix"}>Matrix</DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
       </NavbarContent>
     </Navbar>
   );

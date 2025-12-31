@@ -46,7 +46,7 @@ const ImageApi = {
     const { cropX, cropY, zoom, width, height, sizeWidth, algorithm } =
       imageOptions;
     console.log(
-      `Processing image with width: ${width}, height: ${height}, sizeWidth: ${sizeWidth}, zoom: ${zoom}, cropX: ${cropX}, cropY: ${cropY}`
+      `Processing image with width: ${width}, sizeWidth: ${sizeWidth}, height: ${height}, zoom: ${zoom}, cropX: ${cropX}, cropY: ${cropY}`
     );
     const croppedImage = await ImageApi.cropImage(
       imageData,
@@ -57,8 +57,8 @@ const ImageApi = {
     );
 
     const adjustedWidth =
-      // sizeWidth >= width ? Math.round(sizeWidth * zoom) : sizeWidth;
-      Math.round(sizeWidth * zoom);
+      width == 100 ? Math.round(sizeWidth * zoom) : sizeWidth;
+      // Math.round(sizeWidth * zoom);
       console.log(`Resizing cropped image to width: ${adjustedWidth}, zoom: ${zoom}`);
 
     const resizedImage = await ImageApi.resizeImage(

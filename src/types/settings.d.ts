@@ -4,5 +4,6 @@ declare interface AppSettings {
     dimensions: {
         width: number
         height: number
-    }
+    },
+    elementType?: "tree" | "matrix"
 }
