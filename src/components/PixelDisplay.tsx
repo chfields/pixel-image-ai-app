@@ -305,8 +305,8 @@ export default function PixelDisplay({
           aria-label="Pixel display"
           style={{
             cursor: isEditing
-              ? "url('images/pencil.svg') 0 20, pointer"
-              : "url('images/dropper.svg') 0 20, crosshair",
+              ? "url('assets/images/pencil.svg') 0 20, pointer"
+              : "url('assets/images/dropper.svg') 0 20, crosshair",
             padding: "10px 10px",
             overflow: isTree ? "visible" : "auto",
             // flexGrow: 1,
