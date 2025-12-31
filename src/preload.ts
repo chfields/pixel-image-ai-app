@@ -37,8 +37,8 @@ contextBridge.exposeInMainWorld("imageAPI", {
 });
 
 contextBridge.exposeInMainWorld("aiAPI", {
-  runPrompt: (prompt: string) => {
-    return ipcRenderer.invoke("run-prompt", prompt);
+  runPrompt: (prompt: string, responseID?: string) => {
+    return ipcRenderer.invoke("run-prompt", prompt, responseID);
   },
   onResponseImage: (
     callback: (imageData: ResponseOutputItem.ImageGenerationCall) => void

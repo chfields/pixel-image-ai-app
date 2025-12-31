@@ -15,13 +15,14 @@ const Prompt: FC<{
 }> = ({ setImage }) => {
   const [prompt, setPrompt] = useState<string>("");
   const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [responseID, setResponseID] = useState<string | null>(null);
   const [reasoningSummary, setReasoningSummary] = useState<string>("");
 
-  const generateImage = () => {
+  const generateImage = (responseID?: string) => {
     setIsRunning(true);
     setReasoningSummary("");
     window.aiAPI
-      .runPrompt(prompt)
+      .runPrompt(prompt, responseID)
       .then((data) => {
         console.log("File data:", data);
       })
@@ -41,6 +42,8 @@ const Prompt: FC<{
 
     const handleResponseCompleted = (data: { responseID: string }) => {
       console.log("Response completed with ID:", data.responseID);
+      setResponseID(data.responseID);
+      setIsRunning(false);
       // Handle the completion of the response if needed
     };
 
@@ -64,9 +67,16 @@ const Prompt: FC<{
             placeholder="Enter your prompt here..."
           />
           <CardFooter className="flex items-center justify-between">
-            <Button color="primary" size="sm" onPress={generateImage}>
+            <Button color="primary" size="sm" onPress={() => generateImage()}>
               Generate
             </Button>
+            { responseID && (
+              <Button color="secondary" size="sm" onPress={async () => {
+                generateImage(responseID)
+              }}>
+                Remix
+              </Button>
+            )}
             <Spinner hidden={!isRunning} size="sm" />
           </CardFooter>
         </Card>

@@ -3,13 +3,18 @@ import Prompt from "../components/Prompt";
 import { useCallback, useEffect, useState } from "react";
 import PreviewImage from "../components/PreviewImage";
 import PixelDisplay from "../components/PixelDisplay";
+import AppNavBar from "../components/NavBar";
+import { App } from "electron";
 
 const App: React.FC = () => {
   const [image, setImage] = useState<string>("");
   const [sizedImage, setSizedImage] = useState<string>("");
   const [pixels, setPixels] = useState<Uint8ClampedArray | null>(null);
-  const [currentDirectory, setCurrentDirectory] = useState<string>(() => {
-    return localStorage.getItem("currentDirectory") || "";
+  const [appSettings, setAppSettings] = useState<AppSettings>( () => {
+    const savedDirectory = localStorage.getItem("currentDirectory");
+    return {
+      directory: savedDirectory || "",
+    };
   });
 
   const [pixelInfo, setPixelInfo] = useState<{
@@ -51,38 +56,27 @@ const App: React.FC = () => {
         channels: pixelInfo!.channels,
       }
     );
-    if (!currentDirectory) {
+    if (!appSettings?.directory) {
       alert("Please select a directory first.");
       return;
     }
     const fileName = `edited_image_${Date.now()}.png`;
     await window.fileAPI.writeFileFromBase64(
-      currentDirectory,
+      appSettings!.directory,
       fileName,
       png
     );
     addToast({
       // color: "success",
       title: "Image Saved",
-      description: `Image saved as ${fileName} in ${currentDirectory}`
+      description: `Image saved as ${fileName} in ${appSettings!.directory}`
     });
-  }, [pixels, dimensions, pixelInfo, currentDirectory]);
+  }, [pixels, dimensions, pixelInfo, appSettings]);
 
 
   return (
     <div className="w-full">
-      <Button
-        className="m-4"
-        onPress={async () => {
-          const directories = await window.fileAPI.selectDirectory();
-          if (directories.length > 0) {
-            setCurrentDirectory(directories[0]);
-            localStorage.setItem("currentDirectory", directories[0]);
-          }
-        }}
-      >
-        {currentDirectory ? `Directory: ${currentDirectory}` : "Select Directory"}
-      </Button>
+      <AppNavBar settings={appSettings} setSettings={setAppSettings} />
       <div className="w-full flex items-center justify-center">
         <Prompt setImage={setImage} />
       </div>

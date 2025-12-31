@@ -41,8 +41,8 @@ app.on("ready", () => {
   ipcMain.handle("write-file-from-base64", (event, fileDirectory: string, fileName: string, data: string) => {
     return FileApi.writeFileFromBase64(fileDirectory, fileName, data);
   });
-  ipcMain.handle("run-prompt", (event, prompt) => {
-    return AiApi.runPrompt(event, prompt);
+  ipcMain.handle("run-prompt", (event, prompt, responseID) => {
+    return AiApi.runPrompt(event, prompt, responseID);
   });
   ipcMain.handle("process-image", (event, imageData, imageOptions) => {
       return ImageApi.processImage(imageData, imageOptions);
