@@ -23,11 +23,15 @@ import {
 type AppNavBarProps = {
   settings: AppSettings;
   setSettings: Dispatch<SetStateAction<AppSettings>>;
+  actions?: {
+    download: () => Promise<void>;
+  };
 };
 
 const AppNavBar: FC<AppNavBarProps> = ({
   settings,
   setSettings,
+  actions,
 }: AppNavBarProps) => {
   const [tempRows, setTempRows] = useState<string>(
     (settings.dimensions.height || 50).toString()
@@ -140,6 +144,19 @@ const AppNavBar: FC<AppNavBarProps> = ({
             <DropdownItem key={"matrix"}>Matrix</DropdownItem>
           </DropdownMenu>
         </Dropdown>
+        <NavbarItem>
+          <Button
+            variant="solid"
+            color="primary"
+            className="min-h-[48px]"
+            onPress={() => {
+              actions?.download();
+            }}
+          >
+            Save PNG
+          </Button>
+        </NavbarItem>
+
       </NavbarContent>
     </Navbar>
   );

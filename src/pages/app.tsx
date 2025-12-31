@@ -77,7 +77,7 @@ const App: React.FC = () => {
 
   return (
     <div className="w-full">
-      <AppNavBar settings={appSettings} setSettings={setAppSettings} />
+      <AppNavBar settings={appSettings} setSettings={setAppSettings} actions={{ download: downloadEditedImage }} />
       <div className="w-full flex items-center justify-center">
         <Prompt setImage={setImage} />
       </div>
@@ -93,13 +93,6 @@ const App: React.FC = () => {
           />
         </Card>
         <Card title="Pixel Data Preview" className="w-full p-4">
-          <CardHeader title="Pixel Data Preview">
-            <Button size="sm" onPress={
-              downloadEditedImage
-            }
-            >Download Pixel Data as PNG</Button>
-
-          </CardHeader>
           <PixelDisplay
             pixels={pixels}
             pixelHeight={dimensions.height}
