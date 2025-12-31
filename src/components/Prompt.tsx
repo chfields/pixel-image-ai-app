@@ -62,26 +62,54 @@ const Prompt: FC<{
       <div className="w-full flex items-start justify-center gap-4 flex-row">
         <Card className="w-90 mb-4 p-4 dark:shadow-lg min-w-1/2">
           <Textarea
+            disableAnimation={true}
+            minRows={5}
+            isClearable={true}
             value={prompt}
             onValueChange={setPrompt}
-            placeholder="Enter your prompt here..."
+            placeholder={
+              responseID
+                ? "Enter prompt to remix or generate the image...\n(Enter to remix)\n(Shift + Enter for new line)\n(Escape to clear)"
+                : "Enter prompt to generate an image...\n(Enter to generate)\n(Shift + Enter for new line)\n(Escape to clear)"
+            }
+            onKeyDown={
+              // if enter key use generate or remix
+              (e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  generateImage(responseID ?? undefined);
+                }
+                // escape key clears prompt
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  setPrompt("");
+                }
+              }
+            }
+            onClear={() => setPrompt("")}
           />
           <CardFooter className="flex items-center justify-between">
-            <Button color="primary" size="sm" onPress={() => generateImage()}>
-              Generate
-            </Button>
-            { responseID && (
-              <Button color="secondary" size="sm" onPress={async () => {
-                generateImage(responseID)
-              }}>
-                Remix
+            <div className="flex gap-2">
+              <Button color="primary" size="sm" onPress={() => generateImage()}>
+                Generate
               </Button>
-            )}
+              {responseID && (
+                <Button
+                  color="secondary"
+                  size="sm"
+                  onPress={async () => {
+                    generateImage(responseID);
+                  }}
+                >
+                  Remix
+                </Button>
+              )}
+            </div>
             <Spinner hidden={!isRunning} size="sm" />
           </CardFooter>
         </Card>
         {reasoningSummary && reasoningSummary.length > 0 && (
-          <Card className="w-90 mb-4 p-4 dark:shadow-lg max-w-1/2">
+          <Card className="w-90 mb-4 p-4 dark:shadow-lg max-w-1/2 max-h-[400px] overflow-y-auto">
             <ReasoningViewer reasoningSummary={reasoningSummary} />
           </Card>
         )}

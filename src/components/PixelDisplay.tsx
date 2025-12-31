@@ -434,7 +434,7 @@ export default function PixelDisplay({
         >
           {isEditing ? "Stop Editing" : "Edit Pixels"}
         </Button>
-        <Popover>
+        <Popover disableAnimation={true}>
           <PopoverTrigger>
             <Button size="sm">Select Color</Button>
           </PopoverTrigger>

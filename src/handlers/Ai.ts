@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import {
+  ResponseImageGenCallPartialImageEvent,
   ResponseOutputItem,
   ResponseReasoningSummaryTextDeltaEvent,
 } from "openai/resources/responses/responses";
@@ -30,8 +31,12 @@ When generating images, follow these guidelines:
 export class AiApi {
   static privateExtractImageFromResponse(
     event: Electron.IpcMainInvokeEvent,
-    output: ResponseOutputItem[]
+    output: ResponseOutputItem[] | string
   ) {
+    if (typeof output === "string") {
+      event.sender.send("ai-response-image", { result: output });
+    }
+    if (!Array.isArray(output)) return;
     const imageResult = output.find(
       (output: ResponseOutputItem.ImageGenerationCall): boolean =>
         output.type === "image_generation_call"
@@ -103,6 +108,12 @@ export class AiApi {
             responseID: chunk.response.id,
           });
           break;
+        case "response.image_generation_call.partial_image": {
+          const { partial_image_b64 } =
+            chunk as ResponseImageGenCallPartialImageEvent;
+          AiApi.privateExtractImageFromResponse(event, partial_image_b64);
+          break;
+        }
         case "response.reasoning_summary_text.delta": {
           const { delta } = chunk as ResponseReasoningSummaryTextDeltaEvent;
           event.sender.send("ai-response-reasoning-summary-text-delta", {
@@ -110,6 +121,11 @@ export class AiApi {
           });
           break;
         }
+        case "response.output_text.delta":
+          console.log("Output text delta:", chunk.delta);
+          break;
+        default:
+          break;
       }
     }
 
