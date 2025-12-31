@@ -1,6 +1,6 @@
 import { addToast, Button, Card, CardHeader } from "@heroui/react";
 import Prompt from "../components/Prompt";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PreviewImage from "../components/PreviewImage";
 import PixelDisplay from "../components/PixelDisplay";
 import AppNavBar from "../components/NavBar";
@@ -14,6 +14,10 @@ const App: React.FC = () => {
     const savedDirectory = localStorage.getItem("currentDirectory");
     return {
       directory: savedDirectory || "",
+      dimensions: {
+        width: parseInt(localStorage.getItem("columns") || "16", 10),
+        height: parseInt(localStorage.getItem("rows") || "50", 10),
+      },
     };
   });
 
@@ -22,13 +26,7 @@ const App: React.FC = () => {
     height: number;
     channels: number;
   } | null>(null);
-  const [dimensions, setDimensions] = useState<{
-    width: number;
-    height: number;
-  }>({
-    width: 16,
-    height: 50,
-  });
+
 
   useEffect(() => {
     if (!sizedImage) return;
@@ -71,8 +69,11 @@ const App: React.FC = () => {
       title: "Image Saved",
       description: `Image saved as ${fileName} in ${appSettings!.directory}`
     });
-  }, [pixels, dimensions, pixelInfo, appSettings]);
+  }, [pixels, pixelInfo, appSettings]);
 
+  const dimensions = useMemo(() => {
+    return appSettings.dimensions;
+  }, [appSettings]);
 
   return (
     <div className="w-full">
@@ -80,7 +81,7 @@ const App: React.FC = () => {
       <div className="w-full flex items-center justify-center">
         <Prompt setImage={setImage} />
       </div>
-      <div className="flex flex-row w-full gap-8 mt-4 justify-center items-start m-2 p-2">
+      <div className="flex flex-row w-full gap-4 mt-2 justify-center items-start p-2">
         <Card title="Generated Image Preview" className="w-full p-6">
           <PreviewImage
             className="rounded-md"
@@ -109,6 +110,7 @@ const App: React.FC = () => {
             showOutline={true}
             isTree={false}
             setPixels={(newPixels: Uint8ClampedArray) => {}}
+            className="w-full"
           />
         </Card>
       </div>

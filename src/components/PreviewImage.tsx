@@ -38,11 +38,8 @@ const PreviewImage: FC<{
   }, []);
 
   const onCropAreaChange = (
-    croppedArea: CropArea,
-    croppedAreaPixels: CropArea
+    croppedArea: CropArea
   ) => {
-    // You can use croppedAreaPixels to get the cropped area in pixels
-    // console.log(croppedAreaPixels);
     window.imageAPI
       .processImage(currentImage, {
         cropX: croppedArea.x,

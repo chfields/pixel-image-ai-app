@@ -188,6 +188,8 @@ export default function PixelDisplay({
   const pixelStyleBase: React.CSSProperties = {
     width: pixelSize,
     height: pixelSize,
+    minWidth: pixelSize,
+    minHeight: pixelSize,
     borderRadius: "50%",
     transition: "background-color 120ms linear",
     boxSizing: "border-box",
@@ -305,7 +307,8 @@ export default function PixelDisplay({
             cursor: isEditing
               ? "url('pencil.svg') 0 20, pointer"
               : "url('dropper.svg') 0 20, crosshair",
-            padding: "80px 80px",
+            padding: "10px 10px",
+            overflow: "auto",
           }}
         >
           {/* render each row as a grid of pixels. if it is a tree, the next row should be slightly offset to left and have a bigger gap */}

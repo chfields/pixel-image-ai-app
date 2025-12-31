@@ -28,8 +28,6 @@ const ImageApi = {
     if (!metadata.width || !metadata.height) {
       throw new Error("Invalid image dimensions");
     }
-    console.log(`Original image size: ${metadata.width}x${metadata.height}`);
-
     const croppedImageBuffer = await image
       .extract({
         left: Math.round((cropX / 100) * metadata.width),
@@ -48,7 +46,7 @@ const ImageApi = {
     const { cropX, cropY, zoom, width, height, sizeWidth, algorithm } =
       imageOptions;
     console.log(
-      `Processing image with width: ${width}, height: ${height}, cropX: ${cropX}, cropY: ${cropY}`
+      `Processing image with width: ${width}, height: ${height}, sizeWidth: ${sizeWidth}, zoom: ${zoom}, cropX: ${cropX}, cropY: ${cropY}`
     );
     const croppedImage = await ImageApi.cropImage(
       imageData,
@@ -59,7 +57,9 @@ const ImageApi = {
     );
 
     const adjustedWidth =
-      sizeWidth == width ? Math.round(sizeWidth * zoom) : sizeWidth;
+      // sizeWidth >= width ? Math.round(sizeWidth * zoom) : sizeWidth;
+      Math.round(sizeWidth * zoom);
+      console.log(`Resizing cropped image to width: ${adjustedWidth}, zoom: ${zoom}`);
 
     const resizedImage = await ImageApi.resizeImage(
       croppedImage,
