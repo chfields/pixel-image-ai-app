@@ -69,7 +69,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
           {" "}
           <Button
             variant="faded"
-            className="underline text-blue-400"
+            className="underline text-blue-400 min-h-[48px]"
             onPress={async () => {
               const directories = await window.fileAPI.selectDirectory();
               if (directories.length > 0) {
@@ -123,7 +123,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
         <Dropdown disableAnimation={true}>
           <NavbarItem>
             <DropdownTrigger>
-              <Button disableRipple variant="faded">
+              <Button disableRipple variant="faded" className="min-h-[48px]">
                 Element:{" "}
                 {Array.from(elementType)
                   .join(", ")
