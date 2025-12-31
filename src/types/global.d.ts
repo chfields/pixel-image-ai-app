@@ -8,7 +8,7 @@ declare global {
     fileAPI: {
       readFile: (filePath: string | undefined) => Promise<string>;
       selectDirectory: () => Promise<string[]>;
-      writeFileFromBase64: (fileDirectory: string, fileName: string, data: string) => Promise<void>;
+      writeFileFromBase64: (fileDirectory: string, fileName: string, data: string) => Promise<string>;
     };
     aiAPI: {
       runPrompt: (prompt: string, responseID?: string) => Promise<any>;

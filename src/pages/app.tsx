@@ -58,16 +58,18 @@ const App: React.FC = () => {
       alert("Please select a directory first.");
       return;
     }
-    const fileName = `edited_image_${Date.now()}.png`;
-    await window.fileAPI.writeFileFromBase64(
-      appSettings!.directory,
+    // name should be last part of path + elementtype + index + .png
+    const lastofPath = appSettings.directory.split("/").pop() || "image";
+    const fileName = `${lastofPath}_${appSettings.elementType || "image"}.png`;
+    const finalPath = await window.fileAPI.writeFileFromBase64(
+      `${appSettings?.directory}/images`,
       fileName,
       png
     );
     addToast({
       color: "success",
       title: "Image Saved",
-      description: `Image saved as ${fileName} in ${appSettings?.directory}`
+      description: `Image saved as ${finalPath}`
     });
   }, [pixels, pixelInfo, appSettings]);
 

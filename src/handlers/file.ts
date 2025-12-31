@@ -21,9 +21,26 @@ export class FileApi {
     }
   }
 
-  static async writeFileFromBase64(fileDirectory: string, fileName: string, data: string): Promise<void> {
+  static async writeFileFromBase64(fileDirectory: string, fileName: string, data: string): Promise<string> {
     const buffer = Buffer.from(data, "base64");
-    fs.writeFileSync(`${fileDirectory}/${fileName}`, buffer);
+    // create directory if it doesn't exist
+    if (!fs.existsSync(fileDirectory)) {
+      fs.mkdirSync(fileDirectory, { recursive: true });
+    }
+    // if file exists, add an index to the filename
+    let finalFileName = fileName;
+    let index = 1;
+    while (fs.existsSync(`${fileDirectory}/${finalFileName}`)) {
+      const nameParts = fileName.split(".");
+      const baseName = nameParts.slice(0, -1).join(".");
+      const extension = nameParts[nameParts.length - 1];
+      finalFileName = `${baseName}-${index}.${extension}`;
+      index++;
+    }
+
+    fs.writeFileSync(`${fileDirectory}/${finalFileName}`, buffer);
+
+    return `${fileDirectory}/${finalFileName}`;
   }
 
   static async selectDirectory(): Promise<string[]> {
