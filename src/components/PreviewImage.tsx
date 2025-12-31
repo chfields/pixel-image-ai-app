@@ -41,13 +41,17 @@ const PreviewImage: FC<{
     croppedArea: CropArea
   ) => {
     if (!croppedArea.width || !croppedArea.height) return;
+    console.log(`Cropped area: x=${croppedArea.x}, y=${croppedArea.y}, width=${croppedArea.width}, height=${croppedArea.height}`);
+
     window.imageAPI
       .processImage(currentImage, {
         cropX: croppedArea.x,
         cropY: croppedArea.y,
         zoom,
-        width: croppedArea.width,
-        height: croppedArea.height,
+        width: croppedArea.width > 100 ? 100 : croppedArea.width,
+        height: croppedArea.height > 100
+          ? 100
+          : croppedArea.height,
         sizeWidth: dimensions.width,
         algorithm: "nearest",
       })
@@ -73,7 +77,7 @@ const PreviewImage: FC<{
         restrictPosition={true}
         onCropComplete={onCropAreaChange}
         classes={{
-          // mediaClassName: "border border-gray-700",
+          mediaClassName: "bg-gray-700",
         }}
         // objectFit="contain"
         showGrid={true}

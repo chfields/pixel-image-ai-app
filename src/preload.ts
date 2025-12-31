@@ -31,7 +31,10 @@ contextBridge.exposeInMainWorld("imageAPI", {
   toPixels: (imageData: string) => {
     return ipcRenderer.invoke("to-pixels", imageData);
   },
-  fromPixels: (data: Buffer, info: { width: number; height: number; channels: number }) => {
+  fromPixels: (
+    data: Buffer,
+    info: { width: number; height: number; channels: number }
+  ) => {
     return ipcRenderer.invoke("from-pixels", data, info);
   },
 });
@@ -59,5 +62,14 @@ contextBridge.exposeInMainWorld("aiAPI", {
         callback(data);
       }
     );
+  },
+});
+
+contextBridge.exposeInMainWorld("clipboardAPI", {
+  writeText: (text: string) => {
+    return ipcRenderer.invoke("clipboard-write-text", text);
+  },
+  readText: () => {
+    return ipcRenderer.invoke("clipboard-read-text");
   },
 });

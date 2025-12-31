@@ -20,6 +20,8 @@ const App: React.FC = () => {
       },
     };
   });
+  const [xOffset, setXOffset] = useState<number>(0);
+  const [yOffset, setYOffset] = useState<number>(0);
 
   const [pixelInfo, setPixelInfo] = useState<{
     width: number;
@@ -45,7 +47,7 @@ const App: React.FC = () => {
       );
   }, [sizedImage]);
 
-  const downloadEditedImage = useCallback(async () => {
+  const downloadEditedImage = useCallback(async (showToast = true) => {
     const png = await window.imageAPI.fromPixels(
       pixels,
       {
@@ -66,12 +68,43 @@ const App: React.FC = () => {
       fileName,
       png
     );
+    if (showToast) {
+      addToast({
+        color: "success",
+        title: "Image Saved",
+        description: `Image saved as ${finalPath}`
+      });
+    }
+    return finalPath;
+  }, [pixels, pixelInfo, appSettings]);
+
+  const copyToXlights = useCallback(async () => {
+    if (!pixels || !pixelInfo) {
+      alert("No pixel data to copy.");
+      return;
+    }
+    // print out what is currently in cli
+    const cliText = await window.clipboardAPI.readText();
+    console.log("Current clipboard text:", cliText);
+
+    const downloadedImagePath = await downloadEditedImage(false);
+    if (!downloadedImagePath) {
+      return;
+    }
+    // text for clipboard
+    const textForClipboard = `CopyFormat1	0	1	2	0	-1	NO_PASTE_BY_CELL
+Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHECKBOX_Pictures_TransparentBlack=0,E_CHECKBOX_Pictures_WrapX=0,E_CHOICE_Pictures_Direction=none,E_CHOICE_Scaling=No Scaling,E_FILEPICKER_Pictures_Filename=${downloadedImagePath},E_SLIDER_PicturesXC=${xOffset},E_SLIDER_PicturesYC=${yOffset},E_SLIDER_Pictures_EndScale=100,E_SLIDER_Pictures_StartScale=100,E_TEXTCTRL_Pictures_FrameRateAdj=1.0,E_TEXTCTRL_Pictures_Speed=1.0,E_TEXTCTRL_Pictures_TransparentBlack=0	C_BUTTON_Palette1=#FFFFFF,C_BUTTON_Palette2=#FF0000,C_BUTTON_Palette3=#00FF00,C_BUTTON_Palette4=#0000FF,C_BUTTON_Palette5=#FFFF00,C_BUTTON_Palette6=#FB6906,C_BUTTON_Palette7=#326D6D,C_BUTTON_Palette8=#FF00FF	0	2000	4	-1000	NO_PASTE_BY_CELL
+`;
+
+
+    const clipboardText = await window.clipboardAPI.writeText(textForClipboard);
     addToast({
       color: "success",
-      title: "Image Saved",
-      description: `Image saved as ${finalPath}`
+      title: "Copied to Clipboard",
+      description: `Image data copied to clipboard for xLights.`
     });
-  }, [pixels, pixelInfo, appSettings]);
+    console.log("Clipboard text:", clipboardText);
+  }, [pixels, pixelInfo, xOffset, yOffset, downloadEditedImage]);
 
   const dimensions = useMemo(() => {
     return appSettings.dimensions;
@@ -79,7 +112,7 @@ const App: React.FC = () => {
 
   return (
     <div className="w-full">
-      <AppNavBar settings={appSettings} setSettings={setAppSettings} actions={{ download: downloadEditedImage }} />
+      <AppNavBar settings={appSettings} setSettings={setAppSettings} actions={{ download: downloadEditedImage, copyToXlights: copyToXlights }} />
       <div className="w-full flex items-center justify-center">
         <Prompt setImage={setImage} />
       </div>
@@ -107,6 +140,11 @@ const App: React.FC = () => {
             setPixels={(newPixels: Uint8ClampedArray) => {
               console.log("Updating pixels from PixelDisplay component");
               setPixels(newPixels);
+            }}
+            setOffsets={(xOffset: number, yOffset: number) => {
+              console.log(`Offsets updated: xOffset=${xOffset}, yOffset=${yOffset}`);
+              setXOffset(xOffset);
+              setYOffset(yOffset);
             }}
           />
         </Card>

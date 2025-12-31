@@ -1,10 +1,10 @@
-import { Button } from "@heroui/react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
   Slider,
   Tooltip,
+  Button
 } from "@heroui/react";
 import React, { useMemo } from "react";
 import { HexColorPicker } from "react-colorful";
@@ -21,6 +21,7 @@ type Props = {
   showOutline?: boolean; // subtle outline for each pixel
   isTree?: boolean; // render as tree pixels
   setPixels?: (pixels: PixelInput) => void;
+  setOffsets?: (xOffset: number, yOffset: number) => void;
   pixelHeight: number; // explicit pixel height for tree rendering
   pixelWidth: number; // explicit pixel width for tree rendering
 };
@@ -35,6 +36,7 @@ export default function PixelDisplay({
   showOutline = false,
   isTree = false,
   setPixels,
+  setOffsets,
   pixelHeight,
   pixelWidth,
 }: Props) {
@@ -73,13 +75,12 @@ export default function PixelDisplay({
       channels > 0 ? Math.floor(totalPixels / channels) : totalPixels;
 
     const h =
-      height ?? Math.max(pixelHeight, Math.floor(pixelCount / Math.max(1, width)));
+      height ?? Math.min(pixelHeight, Math.floor(pixelCount / Math.max(1, width)));
 
+    console.log(`Inferred pixel data: channels=${channels}, pixelCount=${pixelCount}, height=${h}, width=${width}`);
     return { channels, pixelCount, height: h };
   }, [pixels, width, height]);
-  const [sliderYValue, setSliderYValue] = React.useState<number>(
-    inferred.height ?? pixelHeight
-  );
+  const [sliderYValue, setSliderYValue] = React.useState<number>(0);
   const [sliderXValue, setSliderXValue] = React.useState<number>(0);
 
   const colors = useMemo(() => {
@@ -116,12 +117,19 @@ export default function PixelDisplay({
     }
 
     // pad out based on sliderYValue
-    const yOffset = (pixelHeight ?? inferred.height) - sliderYValue;
+    const yOffset = sliderYValue + (pixelHeight ?? 50) / 2 - (inferred.height / 2);
+    console.log(`Applying Y offset: ${yOffset}`);
     if (yOffset > 0) {
       for (let i = 0; i < yOffset * width; i++) {
         out.unshift("transparent");
       }
       out.splice(cells, yOffset * width);
+    } else if (yOffset < 0) {
+      const absOffset = -yOffset;
+      for (let i = 0; i < absOffset * width; i++) {
+        out.push("transparent");
+      }
+      out.splice(0, absOffset * width);
     }
 
     // shift the image on the xaxis based on sliderXValue  - positive values shift right, negative values shift left
@@ -365,12 +373,15 @@ export default function PixelDisplay({
           aria-label="Y Position"
           orientation="vertical"
           className="h-96 ml-4"
-          defaultValue={inferred.height}
-          minValue={0}
-          maxValue={pixelHeight}
+          value={-sliderYValue}
+          minValue={-(pixelHeight ?? inferred.height) / 2}
+          maxValue={(pixelHeight ?? inferred.height) / 2}
           step={1}
           onChange={(value: number) => {
-            setSliderYValue(value);
+            setSliderYValue(-value);
+            if (setOffsets) {
+              setOffsets(sliderXValue, value);
+            }
           }}
         />
       </div>
@@ -385,6 +396,9 @@ export default function PixelDisplay({
         step={1}
         onChange={(value: number) => {
           setSliderXValue(value);
+          if (setOffsets) {
+            setOffsets(value, -sliderYValue);
+          }
         }}
       />
       <div className="flex flex-row gap-4 mt-2">

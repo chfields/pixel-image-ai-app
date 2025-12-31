@@ -21,6 +21,10 @@ declare global {
       toPixels: (imageData: string) => Promise<{ data: Buffer; info: { width: number; height: number; channels: number } }>;
       fromPixels: (data: Uint8ClampedArray, info: { width: number; height: number; channels: number }) => Promise<string>;
     };
+    clipboardAPI: {
+      writeText: (text: string) => Promise<void>;
+      readText: () => Promise<string>;
+    };
   }
 }
 

@@ -24,7 +24,8 @@ type AppNavBarProps = {
   settings: AppSettings;
   setSettings: Dispatch<SetStateAction<AppSettings>>;
   actions?: {
-    download: () => Promise<void>;
+    download: (showToast?: boolean) => Promise<string>;
+    copyToXlights: () => Promise<void>;
   };
 };
 
@@ -146,7 +147,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
         </Dropdown>
         <NavbarItem>
           <Button
-            variant="solid"
+            variant="faded"
             color="primary"
             className="min-h-[48px]"
             onPress={() => {
@@ -156,7 +157,18 @@ const AppNavBar: FC<AppNavBarProps> = ({
             Save PNG
           </Button>
         </NavbarItem>
-
+        <NavbarItem>
+          <Button
+            variant="faded"
+            color="primary"
+            className="min-h-[48px]"
+            onPress={() => {
+              actions?.copyToXlights();
+            }}
+          >
+            Copy to xLights
+          </Button>
+        </NavbarItem>
       </NavbarContent>
     </Navbar>
   );
