@@ -26,6 +26,7 @@ type AppNavBarProps = {
   actions?: {
     download: (showToast?: boolean) => Promise<string>;
     copyToXlights: () => Promise<void>;
+    openExistingImage: () => Promise<void>;
   };
 };
 
@@ -67,6 +68,14 @@ const AppNavBar: FC<AppNavBarProps> = ({
     }));
   }, [elementType]);
 
+  const maskNames = (name: string) => {
+    if (!window.globalSettings?.maskNames) {
+      return name;
+    }
+    // remove chfields or Dropbox and replace with ****
+    return name.replace(/chfields|Dropbox/gi, "****");
+  };
+
   return (
     <Navbar isBlurred isBordered className="w-full justify-start">
       <NavbarContent>
@@ -87,7 +96,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
             }}
           >
             {settings.directory
-              ? `Directory: ${settings.directory}`
+              ? `Directory: ${maskNames(settings.directory)}`
               : "Select Directory"}
           </Button>
         </NavbarItem>
@@ -96,6 +105,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
             size="sm"
             label="Rows"
             type="number"
+            className="min-w-[80px]"
             value={tempRows}
             onValueChange={(value: string) => setTempRows(value)}
             onBlur={(e: ChangeEvent<HTMLInputElement>) => {
@@ -113,6 +123,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
             size="sm"
             label="Columns"
             type="number"
+            className="min-w-[80px]"
             value={tempColumns}
             onValueChange={(value: string) => setTempColumns(value)}
             onBlur={(e: ChangeEvent<HTMLInputElement>) => {
@@ -145,6 +156,18 @@ const AppNavBar: FC<AppNavBarProps> = ({
             <DropdownItem key={"matrix"}>Matrix</DropdownItem>
           </DropdownMenu>
         </Dropdown>
+        <NavbarItem>
+          <Button
+            variant="faded"
+            color="primary"
+            className="min-h-[48px]"
+            onPress={() => {
+              actions?.openExistingImage();
+            }}
+          >
+            Open Existing Image
+          </Button>
+        </NavbarItem>
         <NavbarItem>
           <Button
             variant="faded"

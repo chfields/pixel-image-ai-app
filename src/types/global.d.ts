@@ -29,7 +29,9 @@ declare global {
     envVars: {
       homeDir: string;
     };
+    globalSettings: {
+      maskNames: boolean;
+    };
   }
 }
-
 // Ensure your tsconfig.json includes this file or the folder it resides in.

@@ -13,8 +13,10 @@ export class FileApi {
         }
         filePath = result.filePaths[0];
       }
-      const data = fs.readFileSync(filePath, "utf-8"); // Read file synchronously
-      return data;
+      const data = fs.readFileSync(filePath); 
+      /// convert buffer to base64
+      const base64Data = data.toString("base64");
+      return base64Data;
     } catch (error) {
       console.error("Failed to read file:", error);
       return null;

@@ -31,6 +31,10 @@ const App: React.FC = () => {
     channels: number;
   } | null>(null);
 
+  window.globalSettings = {
+    maskNames: true,
+  };
+
   useEffect(() => {
     if (!sizedImage) return;
     window.imageAPI
@@ -67,6 +71,13 @@ const App: React.FC = () => {
         fileName,
         png
       );
+      // save source image as well
+      await window.fileAPI.writeFileFromBase64(
+        `${appSettings?.directory}/images`,
+        `${lastofPath}_${appSettings.elementType}_source.png`,
+        image
+      );
+
       // replace home directory with ~ for display
       const maskedPath = finalPath.replace(window.envVars.homeDir || "", "~");
       if (showToast) {
@@ -139,6 +150,14 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
     return appSettings.dimensions;
   }, [appSettings]);
 
+  const openexistingImage = useCallback(async () => {
+    const fileContent = await window.fileAPI.readFile(undefined);
+    if (fileContent) {
+      setImage(fileContent);
+      localStorage.setItem("generatedImage", fileContent);
+    }
+  }, []);
+
   return (
     <div className="w-full">
       <AppNavBar
@@ -147,6 +166,7 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
         actions={{
           download: downloadEditedImage,
           copyToXlights: copyToXlights,
+          openExistingImage: openexistingImage,
         }}
       />
       <div className="w-full flex items-center justify-center">
