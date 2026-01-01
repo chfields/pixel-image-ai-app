@@ -85,7 +85,7 @@ const App: React.FC = () => {
                   window.fileAPI.showFolder(finalPath);
                 }}
               >
-                View Document
+                View Image
               </Button>
               <Button
                 color={"success"}
