@@ -14,7 +14,7 @@ const Prompt: FC<{
   const [status, setStatus] = useState<string>("");
 
   const canRemix = useMemo(() => {
-    return (image !== "undefined" && image !== "null" && image !== null);
+    return image !== "undefined" && image !== "null" && image !== null;
   }, [responseID, image]);
 
   console.log("Current image:", image?.substring(0, 30) + "...");
@@ -141,6 +141,36 @@ const Prompt: FC<{
                 <div className="text-sm text-gray-500">{status}</div>
               )}
               <Spinner hidden={!isRunning} size="sm" />
+              {isRunning && (
+                <Button
+                  isIconOnly
+                  variant="light"
+                  size="sm"
+                  title="Stop"
+                  onPress={async () => {
+                    await window.aiAPI.stopCurrentResponse();
+                    setIsRunning(false);
+                    setStatus("");
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    role="img"
+                    aria-label="Stop"
+                  >
+                    <title>Square</title>
+                    <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
+                  </svg>
+                </Button>
+              )}
             </div>
           </CardFooter>
         </Card>

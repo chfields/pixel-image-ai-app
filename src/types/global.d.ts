@@ -17,6 +17,7 @@ declare global {
       onResponseCompleted: (callback: (data: { responseID: string }) => void) => void;
       onReasoningSummaryDelta: (callback: (data: string) => void) => void;
       onStatusUpdate: (callback: (data: { status: string }) => void) => void;
+      stopCurrentResponse: () => Promise<void>;
     };
     imageAPI: {
       processImage: (imageData: string, imageOptions: ImageOptions) => Promise<string>;

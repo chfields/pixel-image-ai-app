@@ -1,10 +1,6 @@
 import OpenAI from "openai";
 import {
-  EasyInputMessage,
   ResponseImageGenCallPartialImageEvent,
-  ResponseInput,
-  ResponseInputImage,
-  ResponseInputText,
   ResponseOutputItem,
   ResponseReasoningSummaryTextDeltaEvent,
 } from "openai/resources/responses/responses";
@@ -33,6 +29,8 @@ When generating images, follow these guidelines:
 `;
 
 export class AiApi {
+  static currentController: AbortController | null = null;
+
   static privateExtractImageFromResponse(
     event: Electron.IpcMainInvokeEvent,
     output: ResponseOutputItem[] | string
@@ -48,11 +46,20 @@ export class AiApi {
     event.sender.send("ai-response-image", imageResult);
   }
 
+  static async stopCurrentResponse(): Promise<void> {
+    if (AiApi.currentController) {
+      AiApi.currentController.abort();
+    }
+  }
+
   static async runPrompt(
     event: Electron.IpcMainInvokeEvent,
     prompt: string,
     remixOptions?: { responseID?: string; imageInput?: string }
   ): Promise<any> {
+    AiApi.currentController = new AbortController();
+    const signal = AiApi.currentController.signal;
+
     const userContent =
       remixOptions?.imageInput && !remixOptions.responseID
         ? {
@@ -83,87 +90,100 @@ export class AiApi {
 
     input.push(userContent);
 
-    // Placeholder implementation for AI prompt processing
-    // Replace this with actual AI integration logic
-    const response = await openai.responses.create({
-      model: "gpt-5.2",
-      previous_response_id: remixOptions?.responseID
-        ? remixOptions.responseID
-        : undefined,
-      stream: true,
-      reasoning: {
-        summary: "detailed",
-        effort: "medium",
-      },
-      text: {
-        verbosity: "high",
-      },
-      store: true,
-      input,
-      include: [
-        "reasoning.encrypted_content",
-        "web_search_call.action.sources",
-      ],
-      tools: [
+    try {
+      // Placeholder implementation for AI prompt processing
+      // Replace this with actual AI integration logic
+      const response = await openai.responses.create(
         {
-          type: "image_generation",
-          model: "gpt-image-1.5",
-          size: "1024x1024",
-          quality: "low",
-          output_format: "png",
-          background: "transparent",
-          moderation: "auto",
-          partial_images: 0,
+          model: "gpt-5.2",
+          previous_response_id: remixOptions?.responseID
+            ? remixOptions.responseID
+            : undefined,
+          stream: true,
+          reasoning: {
+            summary: "detailed",
+            effort: "medium",
+          },
+          text: {
+            verbosity: "high",
+          },
+          store: true,
+          input,
+          include: [
+            "reasoning.encrypted_content",
+            "web_search_call.action.sources",
+          ],
+          tools: [
+            {
+              type: "image_generation",
+              model: "gpt-image-1.5",
+              size: "1024x1024",
+              quality: "low",
+              output_format: "png",
+              background: "transparent",
+              moderation: "auto",
+              partial_images: 0,
+            },
+            // {
+            //   type: "web_search",
+            //   user_location: {
+            //     type: "approximate",
+            //     country: "US",
+            //   },
+            //   search_context_size: "low",
+            // },
+          ],
         },
-        // {
-        //   type: "web_search",
-        //   user_location: {
-        //     type: "approximate",
-        //     country: "US",
-        //   },
-        //   search_context_size: "low",
-        // },
-      ],
-    });
+        { signal }
+      );
 
-    for await (const chunk of response) {
-      console.log("Received chunk of type:", chunk.type);
-      switch (chunk.type) {
-        case "response.completed":
-          AiApi.privateExtractImageFromResponse(event, chunk.response.output);
-          event.sender.send("ai-response-completed", {
-            responseID: chunk.response.id,
-          });
-          break;
-        case "response.image_generation_call.partial_image": {
-          const { partial_image_b64 } =
-            chunk as ResponseImageGenCallPartialImageEvent;
-          AiApi.privateExtractImageFromResponse(event, partial_image_b64);
-          break;
+      for await (const chunk of response) {
+        console.log("Received chunk of type:", chunk.type);
+        switch (chunk.type) {
+          case "response.completed":
+            AiApi.privateExtractImageFromResponse(event, chunk.response.output);
+            event.sender.send("ai-response-completed", {
+              responseID: chunk.response.id,
+            });
+            break;
+          case "response.image_generation_call.partial_image": {
+            const { partial_image_b64 } =
+              chunk as ResponseImageGenCallPartialImageEvent;
+            AiApi.privateExtractImageFromResponse(event, partial_image_b64);
+            break;
+          }
+          case "response.reasoning_summary_text.delta": {
+            const { delta } = chunk as ResponseReasoningSummaryTextDeltaEvent;
+            event.sender.send("ai-response-reasoning-summary-text-delta", {
+              delta,
+            });
+            break;
+          }
+          case "response.reasoning_summary_part.added":
+            event.sender.send("ai-response-status-update", {
+              status: "Reasoning...",
+            });
+            break;
+          case "response.image_generation_call.generating":
+            event.sender.send("ai-response-status-update", {
+              status: "Generating image...",
+            });
+            break;
+          case "response.output_text.delta":
+            console.log("Output text delta:", chunk.delta);
+            break;
+          default:
+            break;
         }
-        case "response.reasoning_summary_text.delta": {
-          const { delta } = chunk as ResponseReasoningSummaryTextDeltaEvent;
-          event.sender.send("ai-response-reasoning-summary-text-delta", {
-            delta,
-          });
-          break;
-        }
-        case "response.reasoning_summary_part.added":
-          event.sender.send("ai-response-status-update", {
-            status: "Reasoning...",
-          });
-          break;
-        case "response.image_generation_call.generating":
-          event.sender.send("ai-response-status-update", {
-            status: "Generating image...",
-          });
-          break;
-        case "response.output_text.delta":
-          console.log("Output text delta:", chunk.delta);
-          break;
-        default:
-          break;
       }
+    } catch (error) {
+      if (error.name === "AbortError") {
+        console.log("AI response was aborted.");
+      } else {
+        console.error("Error during AI response:", error);
+      }
+    } finally {
+      AiApi.currentController = null;
     }
 
     return null;

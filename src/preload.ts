@@ -74,6 +74,9 @@ contextBridge.exposeInMainWorld("aiAPI", {
       callback(data);
     });
   },
+  stopCurrentResponse: () => {
+    return ipcRenderer.invoke("ai-stop-current-response");
+  },
 });
 
 contextBridge.exposeInMainWorld("clipboardAPI", {

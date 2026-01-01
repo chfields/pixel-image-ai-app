@@ -47,6 +47,9 @@ app.on("ready", () => {
   ipcMain.handle("run-prompt", (event, prompt, remixOptions) => {
     return AiApi.runPrompt(event, prompt, remixOptions);
   });
+  ipcMain.handle("ai-stop-current-response", async () => {
+    await AiApi.stopCurrentResponse();
+  });
   ipcMain.handle("process-image", (event, imageData, imageOptions) => {
       return ImageApi.processImage(imageData, imageOptions);
   });
