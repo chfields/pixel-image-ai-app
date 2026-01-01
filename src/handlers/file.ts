@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { dialog } from "electron";
+import { dialog, shell } from "electron";
 
 export class FileApi {
   static async readFile(filePath: string | undefined): Promise<string> {
@@ -20,8 +20,17 @@ export class FileApi {
       return null;
     }
   }
+  static async showFolder(directoryPath: string): Promise<void> {
+    if (fs.existsSync(directoryPath)) {
+      await shell.openPath(directoryPath);
+    }
+  }
 
-  static async writeFileFromBase64(fileDirectory: string, fileName: string, data: string): Promise<string> {
+  static async writeFileFromBase64(
+    fileDirectory: string,
+    fileName: string,
+    data: string
+  ): Promise<string> {
     const buffer = Buffer.from(data, "base64");
     // create directory if it doesn't exist
     if (!fs.existsSync(fileDirectory)) {

@@ -6,6 +6,7 @@ export {};
 declare global {
   interface Window {
     fileAPI: {
+      showFolder: (directoryPath: string) => Promise<void>;
       readFile: (filePath: string | undefined) => Promise<string>;
       selectDirectory: () => Promise<string[]>;
       writeFileFromBase64: (fileDirectory: string, fileName: string, data: string) => Promise<string>;
@@ -24,6 +25,9 @@ declare global {
     clipboardAPI: {
       writeText: (text: string) => Promise<void>;
       readText: () => Promise<string>;
+    };
+    envVars: {
+      homeDir: string;
     };
   }
 }

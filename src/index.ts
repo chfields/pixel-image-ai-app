@@ -36,7 +36,9 @@ const createWindow = (): void => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
   createWindow();
-
+  ipcMain.handle("show-folder", (event, directoryPath: string) => {
+    return FileApi.showFolder(directoryPath);
+  });
   ipcMain.handle("read-file", (event, filePath) => FileApi.readFile(filePath));
   ipcMain.handle("select-directory", () => FileApi.selectDirectory());
   ipcMain.handle("write-file-from-base64", (event, fileDirectory: string, fileName: string, data: string) => {

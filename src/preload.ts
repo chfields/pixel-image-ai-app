@@ -4,6 +4,9 @@ import { contextBridge, ipcRenderer } from "electron";
 import { ResponseOutputItem } from "openai/resources/responses/responses";
 
 contextBridge.exposeInMainWorld("fileAPI", {
+  showFolder: (directoryPath: string) => {  
+    return ipcRenderer.invoke("show-folder", directoryPath);
+  },
   readFile: (filePath: string | undefined) => {
     return ipcRenderer.invoke("read-file", filePath);
   },
@@ -72,4 +75,8 @@ contextBridge.exposeInMainWorld("clipboardAPI", {
   readText: () => {
     return ipcRenderer.invoke("clipboard-read-text");
   },
+});
+
+contextBridge.exposeInMainWorld("envVars", {
+  homeDir: process.env.HOME || "",
 });
