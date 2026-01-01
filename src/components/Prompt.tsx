@@ -1,28 +1,31 @@
-import {
-  Button,
-  Card,
-  CardFooter,
-  image,
-  Spinner,
-  Textarea,
-} from "@heroui/react";
-import { FC, useEffect, useState } from "react";
-import Reasoning from "./ReasoningViewer";
+import { Button, Card, CardFooter, Spinner, Textarea } from "@heroui/react";
+import { createRef, FC, use, useEffect, useMemo, useState } from "react";
 import ReasoningViewer from "./ReasoningViewer";
 
 const Prompt: FC<{
+  image?: string;
   setImage: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ setImage }) => {
+}> = ({ image, setImage }) => {
   const [prompt, setPrompt] = useState<string>("");
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [responseID, setResponseID] = useState<string | null>(null);
   const [reasoningSummary, setReasoningSummary] = useState<string>("");
+  const reasoningViewerRef = createRef<HTMLDivElement>();
 
-  const generateImage = (responseID?: string) => {
+  const canRemix = useMemo(() => {
+    return responseID !== null || image !== undefined;
+  }, [responseID, image]);
+
+  console.log("Current image:", image?.substring(0, 30) + "...");
+
+  const generateImage = (remixOptions?: {
+    responseIDInput?: string;
+    imageInput?: string;
+  }) => {
     setIsRunning(true);
     setReasoningSummary("");
     window.aiAPI
-      .runPrompt(prompt, responseID)
+      .runPrompt(prompt, remixOptions)
       .then((data) => {
         console.log("File data:", data);
       })
@@ -57,6 +60,20 @@ const Prompt: FC<{
     window.aiAPI.onResponseCompleted(handleResponseCompleted);
   }, []);
 
+  useEffect(() => {
+    if (reasoningViewerRef.current) {
+      // scroll to bottom unless user has scrolled up more than 50px
+      const el = reasoningViewerRef.current;
+      if (el) {
+        const { scrollTop, scrollHeight, clientHeight } = el;
+        const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+        if (distanceFromBottom <= 50) {
+          el.scrollTop = scrollHeight;
+        }
+      }
+    }
+  }, [reasoningSummary, reasoningViewerRef]);
+
   return (
     <div className="w-full p-4 rounded-md shadow-md">
       <div className="w-full flex items-start justify-center gap-4 flex-row">
@@ -68,7 +85,7 @@ const Prompt: FC<{
             value={prompt}
             onValueChange={setPrompt}
             placeholder={
-              responseID
+              canRemix
                 ? "Enter prompt to remix or generate the image...\n(Enter to remix)\n(Shift + Enter for new line)\n(Escape to clear)"
                 : "Enter prompt to generate an image...\n(Enter to generate)\n(Shift + Enter for new line)\n(Escape to clear)"
             }
@@ -77,7 +94,10 @@ const Prompt: FC<{
               (e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  generateImage(responseID ?? undefined);
+                  generateImage({
+                    responseIDInput: responseID,
+                    imageInput: image,
+                  });
                 }
                 // escape key clears prompt
                 if (e.key === "Escape") {
@@ -93,12 +113,15 @@ const Prompt: FC<{
               <Button color="primary" size="sm" onPress={() => generateImage()}>
                 Generate
               </Button>
-              {responseID && (
+              {canRemix && (
                 <Button
                   color="secondary"
                   size="sm"
                   onPress={async () => {
-                    generateImage(responseID);
+                    generateImage({
+                      responseIDInput: responseID,
+                      imageInput: image,
+                    });
                   }}
                 >
                   Remix
@@ -109,7 +132,10 @@ const Prompt: FC<{
           </CardFooter>
         </Card>
         {reasoningSummary && reasoningSummary.length > 0 && (
-          <Card className="w-90 mb-4 p-4 dark:shadow-lg max-w-1/2 max-h-[400px] overflow-y-auto">
+          <Card
+            ref={reasoningViewerRef}
+            className="w-90 mb-4 p-4 dark:shadow-lg max-w-1/2 max-h-[400px] overflow-y-auto"
+          >
             <ReasoningViewer reasoningSummary={reasoningSummary} />
           </Card>
         )}

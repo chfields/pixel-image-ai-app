@@ -1,4 +1,4 @@
-import { addToast, Button, Card, CardHeader } from "@heroui/react";
+import { addToast, Button, Card } from "@heroui/react";
 import Prompt from "../components/Prompt";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PreviewImage from "../components/PreviewImage";
@@ -7,7 +7,9 @@ import AppNavBar from "../components/NavBar";
 import { App } from "electron";
 
 const App: React.FC = () => {
-  const [image, setImage] = useState<string>("");
+  const [image, setImage] = useState<string>(() => {
+    return localStorage.getItem("generatedImage") || "";
+  });
   const [sizedImage, setSizedImage] = useState<string>("");
   const [pixels, setPixels] = useState<Uint8ClampedArray | null>(null);
   const [appSettings, setAppSettings] = useState<AppSettings>(() => {
@@ -148,7 +150,7 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
         }}
       />
       <div className="w-full flex items-center justify-center">
-        <Prompt setImage={setImage} />
+        <Prompt setImage={setImage} image={image} />
       </div>
       <div className="flex flex-row w-full gap-4 mt-2 justify-center items-start p-2">
         <Card title="Generated Image Preview" className="w-full p-6">

@@ -1,6 +1,10 @@
 import OpenAI from "openai";
 import {
+  EasyInputMessage,
   ResponseImageGenCallPartialImageEvent,
+  ResponseInput,
+  ResponseInputImage,
+  ResponseInputText,
   ResponseOutputItem,
   ResponseReasoningSummaryTextDeltaEvent,
 } from "openai/resources/responses/responses";
@@ -47,13 +51,44 @@ export class AiApi {
   static async runPrompt(
     event: Electron.IpcMainInvokeEvent,
     prompt: string,
-    responseID?: string
+    remixOptions?: { responseID?: string; imageInput?: string }
   ): Promise<any> {
+    const userContent = remixOptions?.imageInput && !remixOptions.responseID
+      ? {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: prompt,
+            },
+            {
+              type: "input_image",
+              image_url: `data:image/png;base64,${remixOptions.imageInput}`,
+              detail: "auto",
+            }
+          ],
+        } 
+      : {
+          role: "user",
+          content: prompt,
+        };
+
+    const input = [
+      {
+        role: "system",
+        content: SYSTEM_PROMPT,
+      },
+    ] as any;
+
+    input.push(userContent);
+
     // Placeholder implementation for AI prompt processing
     // Replace this with actual AI integration logic
     const response = await openai.responses.create({
       model: "gpt-5.2",
-      previous_response_id: responseID ? responseID : undefined,
+      previous_response_id: remixOptions?.responseID
+        ? remixOptions.responseID
+        : undefined,
       stream: true,
       reasoning: {
         summary: "detailed",
@@ -63,16 +98,7 @@ export class AiApi {
         verbosity: "high",
       },
       store: true,
-      input: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+      input,
       include: [
         "reasoning.encrypted_content",
         "web_search_call.action.sources",

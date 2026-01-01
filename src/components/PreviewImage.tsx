@@ -12,9 +12,7 @@ const PreviewImage: FC<{
   className?: string;
   dimensions: { width: number; height: number };
 }> = ({ image, width, height, setSizedImage, className, dimensions }) => {
-  const [currentImage, setCurrentImage] = useState<string>(() => {
-    return localStorage.getItem("generatedImage") || "";
-  });
+  const [currentImage, setCurrentImage] = useState<string>(image);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const aspect = useMemo(() => {

@@ -4,7 +4,7 @@ import { contextBridge, ipcRenderer } from "electron";
 import { ResponseOutputItem } from "openai/resources/responses/responses";
 
 contextBridge.exposeInMainWorld("fileAPI", {
-  showFolder: (directoryPath: string) => {  
+  showFolder: (directoryPath: string) => {
     return ipcRenderer.invoke("show-folder", directoryPath);
   },
   readFile: (filePath: string | undefined) => {
@@ -43,8 +43,11 @@ contextBridge.exposeInMainWorld("imageAPI", {
 });
 
 contextBridge.exposeInMainWorld("aiAPI", {
-  runPrompt: (prompt: string, responseID?: string) => {
-    return ipcRenderer.invoke("run-prompt", prompt, responseID);
+  runPrompt: (
+    prompt: string,
+    remixOptions?: { responseID?: string; imageInput?: string }
+  ) => {
+    return ipcRenderer.invoke("run-prompt", prompt, remixOptions);
   },
   onResponseImage: (
     callback: (imageData: ResponseOutputItem.ImageGenerationCall) => void
