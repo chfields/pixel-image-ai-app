@@ -69,6 +69,11 @@ contextBridge.exposeInMainWorld("aiAPI", {
       }
     );
   },
+  onStatusUpdate: (callback: (data: { status: string }) => void) => {
+    ipcRenderer.on("ai-response-status-update", (event, data) => {
+      callback(data);
+    });
+  },
 });
 
 contextBridge.exposeInMainWorld("clipboardAPI", {

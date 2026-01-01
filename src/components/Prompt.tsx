@@ -11,6 +11,7 @@ const Prompt: FC<{
   const [responseID, setResponseID] = useState<string | null>(null);
   const [reasoningSummary, setReasoningSummary] = useState<string>("");
   const reasoningViewerRef = createRef<HTMLDivElement>();
+  const [status, setStatus] = useState<string>("");
 
   const canRemix = useMemo(() => {
     return responseID !== null || image !== undefined;
@@ -24,6 +25,7 @@ const Prompt: FC<{
   }) => {
     setIsRunning(true);
     setReasoningSummary("");
+    setStatus("Starting...");
     window.aiAPI
       .runPrompt(prompt, remixOptions)
       .then((data) => {
@@ -55,6 +57,12 @@ const Prompt: FC<{
       setReasoningSummary((prev) => prev + data.delta);
     };
 
+    const handleStatusUpdate = (data: { status: string }) => {
+      console.log("Status update:", data.status);
+      setStatus(data.status);
+    };
+
+    window.aiAPI.onStatusUpdate(handleStatusUpdate);
     window.aiAPI.onReasoningSummaryDelta(handleReasoningSummaryDelta);
     window.aiAPI.onResponseImage(handleResponseImage);
     window.aiAPI.onResponseCompleted(handleResponseCompleted);
@@ -77,7 +85,7 @@ const Prompt: FC<{
   return (
     <div className="w-full p-4 rounded-md shadow-md">
       <div className="w-full flex items-start justify-center gap-4 flex-row">
-        <Card className="w-90 mb-4 p-4 dark:shadow-lg min-w-1/2">
+        <Card className="w-90 mb-4 p-4 dark:shadow-lg min-w-1/2 max-h-[300px]">
           <Textarea
             disableAnimation={true}
             minRows={5}
@@ -128,13 +136,18 @@ const Prompt: FC<{
                 </Button>
               )}
             </div>
-            <Spinner hidden={!isRunning} size="sm" />
+            <div className="flex items-center gap-2">
+              {isRunning && (
+                <div className="text-sm text-gray-500">{status}</div>
+              )}
+              <Spinner hidden={!isRunning} size="sm" />
+            </div>
           </CardFooter>
         </Card>
         {reasoningSummary && reasoningSummary.length > 0 && (
           <Card
             ref={reasoningViewerRef}
-            className="w-90 mb-4 p-4 dark:shadow-lg max-w-1/2 max-h-[400px] overflow-y-auto"
+            className="w-90 mb-4 p-4 dark:shadow-lg max-w-1/2 max-h-[300px] overflow-y-auto"
           >
             <ReasoningViewer reasoningSummary={reasoningSummary} />
           </Card>

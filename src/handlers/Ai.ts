@@ -53,25 +53,26 @@ export class AiApi {
     prompt: string,
     remixOptions?: { responseID?: string; imageInput?: string }
   ): Promise<any> {
-    const userContent = remixOptions?.imageInput && !remixOptions.responseID
-      ? {
-          role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: prompt,
-            },
-            {
-              type: "input_image",
-              image_url: `data:image/png;base64,${remixOptions.imageInput}`,
-              detail: "auto",
-            }
-          ],
-        } 
-      : {
-          role: "user",
-          content: prompt,
-        };
+    const userContent =
+      remixOptions?.imageInput && !remixOptions.responseID
+        ? {
+            role: "user",
+            content: [
+              {
+                type: "input_text",
+                text: prompt,
+              },
+              {
+                type: "input_image",
+                image_url: `data:image/png;base64,${remixOptions.imageInput}`,
+                detail: "auto",
+              },
+            ],
+          }
+        : {
+            role: "user",
+            content: prompt,
+          };
 
     const input = [
       {
@@ -147,6 +148,16 @@ export class AiApi {
           });
           break;
         }
+        case "response.reasoning_summary_part.added":
+          event.sender.send("ai-response-status-update", {
+            status: "Reasoning...",
+          });
+          break;
+        case "response.image_generation_call.generating":
+          event.sender.send("ai-response-status-update", {
+            status: "Generating image...",
+          });
+          break;
         case "response.output_text.delta":
           console.log("Output text delta:", chunk.delta);
           break;
