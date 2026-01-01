@@ -26,6 +26,8 @@ type Props = {
   pixelWidth: number; // explicit pixel width for tree rendering
 };
 
+const DEFAULT_CHANNELS = 4;
+
 export default function PixelDisplay({
   pixels,
   width,
@@ -66,7 +68,7 @@ export default function PixelDisplay({
         totalPixels % 4 === 0 &&
         (height === undefined || height === undefined)
       )
-        channels = 4;
+        channels = DEFAULT_CHANNELS;
       else if (totalPixels % 3 === 0) channels = 3;
       else channels = 1;
     }
@@ -83,6 +85,11 @@ export default function PixelDisplay({
   const [sliderYValue, setSliderYValue] = React.useState<number>(0);
   const [sliderXValue, setSliderXValue] = React.useState<number>(0);
 
+
+  const yOffset = useMemo(() => {
+    return Math.round(sliderYValue + (pixelHeight ?? 50) / 2 - (inferred.height / 2));
+  }, [sliderYValue, pixelHeight, inferred.height]);
+
   const colors = useMemo(() => {
     const out: string[] = [];
     const cells = width * (pixelHeight || inferred.height);
@@ -92,7 +99,7 @@ export default function PixelDisplay({
       (Array.isArray(pixels) && typeof pixels[0] === "number")
     ) {
       const arr = pixels as unknown as number[];
-      const ch = inferred.channels || 1;
+      const ch = inferred.channels || DEFAULT_CHANNELS;
       for (let i = 0; i < cells; i++) {
         const base = i * ch;
         if (ch === 4) {
@@ -117,7 +124,6 @@ export default function PixelDisplay({
     }
 
     // pad out based on sliderYValue
-    const yOffset = sliderYValue + (pixelHeight ?? 50) / 2 - (inferred.height / 2);
     console.log(`Applying Y offset: ${yOffset}`);
     if (yOffset > 0) {
       for (let i = 0; i < yOffset * width; i++) {
@@ -134,6 +140,7 @@ export default function PixelDisplay({
 
     // shift the image on the xaxis based on sliderXValue  - positive values shift right, negative values shift left
     const xOffset = sliderXValue;
+    console.log(`Applying X offset: ${xOffset}`);
     if (xOffset != 0) {
       for (let row = 0; row < (pixelHeight ?? inferred.height); row++) {
         const rowStart = row * width;
@@ -252,7 +259,6 @@ export default function PixelDisplay({
     if (pixelIndex !== null) {
       // adjust pixel index based on sliderYValue and sliderXValue
       let adjustedIndex = parseInt(pixelIndex, 10);
-      const yOffset = (pixelHeight ?? inferred.height) - sliderYValue;
       if (yOffset > 0) {
         adjustedIndex -= yOffset * width;
         if (adjustedIndex < 0) return; // clicked on padded area
@@ -281,7 +287,7 @@ export default function PixelDisplay({
       if (typeof pixels === "object" && pixels instanceof Uint8ClampedArray) {
         newPixels = new Uint8ClampedArray(pixels);
 
-        const ch = inferred.channels || 1;
+        const ch = inferred.channels || 4;
         const base = adjustedIndex * ch;
         newPixels[base] = editColor.r;
         if (ch > 1) newPixels[base + 1] = editColor.g;
