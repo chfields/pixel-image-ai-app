@@ -99,7 +99,7 @@ const Prompt: FC<{
             }
             onKeyDown={
               // if enter key use generate or remix
-              (e) => {
+              (e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   generateImage({

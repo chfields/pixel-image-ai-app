@@ -1,4 +1,4 @@
-import { addToast, Button, Card } from "@heroui/react";
+import { addToast, Button, Card, ToastVariantProps } from "@heroui/react";
 import Prompt from "../components/Prompt";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PreviewImage from "../components/PreviewImage";
@@ -112,7 +112,7 @@ const App: React.FC = () => {
               </Button>
             </div>
           ),
-        });
+        } as ToastVariantProps);
       }
       return finalPath;
     },
@@ -142,7 +142,7 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
       color: "success",
       title: "Copied to Clipboard",
       description: `Image data copied to clipboard for xLights.`,
-    });
+    } as any);
     console.log("Clipboard text:", clipboardText);
   }, [pixels, pixelInfo, xOffset, yOffset, downloadEditedImage]);
 
