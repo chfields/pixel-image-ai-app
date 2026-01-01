@@ -52,6 +52,7 @@
     "@heroui/react": "^2.8.7",
     "@heroui/theme": "^2.4.25",
     "@tailwindcss/cli": "^4.1.18",
+    "@timfish/forge-externals-plugin": "^0.2.1",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^8.2.0",
     "framer-motion": "^12.23.26",
