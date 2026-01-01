@@ -7,8 +7,8 @@ import AppNavBar from "../components/NavBar";
 import { App } from "electron";
 
 const App: React.FC = () => {
-  const [image, setImage] = useState<string>(() => {
-    return localStorage.getItem("generatedImage") || "";
+  const [image, setImage] = useState<string | null>(() => {
+    return localStorage.getItem("generatedImage") || null;
   });
   const [sizedImage, setSizedImage] = useState<string>("");
   const [pixels, setPixels] = useState<Uint8ClampedArray | null>(null);
@@ -158,6 +158,14 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
     }
   }, []);
 
+  const clearImage = useCallback(() => {
+    setImage(null);
+    setSizedImage("");
+    setPixels(null);
+    setPixelInfo(null);
+    localStorage.removeItem("generatedImage");
+  }, [setImage, setSizedImage, setPixels, setPixelInfo]);
+
   return (
     <div className="w-full">
       <AppNavBar
@@ -167,6 +175,7 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
           download: downloadEditedImage,
           copyToXlights: copyToXlights,
           openExistingImage: openexistingImage,
+          clearImage
         }}
       />
       <div className="w-full flex items-center justify-center">

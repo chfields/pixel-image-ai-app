@@ -27,6 +27,7 @@ type AppNavBarProps = {
     download: (showToast?: boolean) => Promise<string>;
     copyToXlights: () => Promise<void>;
     openExistingImage: () => Promise<void>;
+    clearImage: () => void;
   };
 };
 
@@ -77,8 +78,8 @@ const AppNavBar: FC<AppNavBarProps> = ({
   };
 
   return (
-    <Navbar isBlurred isBordered className="w-full justify-start">
-      <NavbarContent>
+    <Navbar isBlurred isBordered position="sticky" maxWidth="full">
+      <NavbarContent justify="start">
         <NavbarItem>
           {" "}
           <Button
@@ -156,6 +157,9 @@ const AppNavBar: FC<AppNavBarProps> = ({
             <DropdownItem key={"matrix"}>Matrix</DropdownItem>
           </DropdownMenu>
         </Dropdown>
+
+      </NavbarContent>
+      <NavbarContent justify="end">
         <NavbarItem>
           <Button
             variant="faded"
@@ -190,6 +194,18 @@ const AppNavBar: FC<AppNavBarProps> = ({
             }}
           >
             Copy to xLights
+          </Button>
+        </NavbarItem>
+        <NavbarItem>
+          <Button
+            variant="faded"
+            color="secondary"
+            className="min-h-[48px]"
+            onPress={() => {
+              actions?.clearImage();
+            }}
+          >
+            Clear
           </Button>
         </NavbarItem>
       </NavbarContent>

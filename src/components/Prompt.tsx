@@ -3,8 +3,8 @@ import { createRef, FC, use, useEffect, useMemo, useState } from "react";
 import ReasoningViewer from "./ReasoningViewer";
 
 const Prompt: FC<{
-  image?: string;
-  setImage: React.Dispatch<React.SetStateAction<string>>;
+  image: string | null;
+  setImage: React.Dispatch<React.SetStateAction<string | null>>;
 }> = ({ image, setImage }) => {
   const [prompt, setPrompt] = useState<string>("");
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -14,7 +14,7 @@ const Prompt: FC<{
   const [status, setStatus] = useState<string>("");
 
   const canRemix = useMemo(() => {
-    return responseID !== null || image !== undefined;
+    return (image !== "undefined" && image !== "null" && image !== null);
   }, [responseID, image]);
 
   console.log("Current image:", image?.substring(0, 30) + "...");

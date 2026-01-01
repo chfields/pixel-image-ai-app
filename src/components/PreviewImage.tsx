@@ -5,14 +5,16 @@ const DEFAULT_WIDTH = 16;
 const DEFAULT_HEIGHT = 50;
 
 const PreviewImage: FC<{
-  image: string;
+  image?: string;
   width: number;
   height: number;
   setSizedImage: (image: string) => void;
   className?: string;
   dimensions: { width: number; height: number };
 }> = ({ image, width, height, setSizedImage, className, dimensions }) => {
-  const [currentImage, setCurrentImage] = useState<string>(image);
+  const [currentImage, setCurrentImage] = useState<string | undefined>(
+    image || undefined
+  );
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const aspect = useMemo(() => {
@@ -23,7 +25,6 @@ const PreviewImage: FC<{
   }, [width, height]);
 
   useEffect(() => {
-    if (!image) return;
     localStorage.setItem("generatedImage", image);
     setCurrentImage(image);
   }, [image]);
@@ -35,11 +36,11 @@ const PreviewImage: FC<{
     }
   }, []);
 
-  const onCropAreaChange = (
-    croppedArea: CropArea
-  ) => {
-    if (!croppedArea.width || !croppedArea.height) return;
-    console.log(`Cropped area: x=${croppedArea.x}, y=${croppedArea.y}, width=${croppedArea.width}, height=${croppedArea.height}`);
+  const onCropAreaChange = (croppedArea: CropArea) => {
+    if (!croppedArea.width || !croppedArea.height || !currentImage) return;
+    console.log(
+      `Cropped area: x=${croppedArea.x}, y=${croppedArea.y}, width=${croppedArea.width}, height=${croppedArea.height}`
+    );
 
     window.imageAPI
       .processImage(currentImage, {
@@ -47,9 +48,7 @@ const PreviewImage: FC<{
         cropY: croppedArea.y,
         zoom,
         width: croppedArea.width > 100 ? 100 : croppedArea.width,
-        height: croppedArea.height > 100
-          ? 100
-          : croppedArea.height,
+        height: croppedArea.height > 100 ? 100 : croppedArea.height,
         sizeWidth: dimensions.width,
         algorithm: "nearest",
       })
@@ -62,24 +61,34 @@ const PreviewImage: FC<{
     <div
       className={`${className} flex flex-row w-full items-center justify-center relative h-[300px] w-[100px] bg-gray-200 dark:bg-gray-800 border border-gray-400 dark:border-gray-600`}
     >
-      <Cropper
-        image={`data:image/png;base64,${currentImage}`}
-        crop={crop}
-        rotation={0}
-        zoom={zoom}
-        onCropChange={setCrop}
-        onZoomChange={setZoom}
-        minZoom={0.05}
-        aspect={aspect}
-        cropShape="rect"
-        restrictPosition={true}
-        onCropComplete={onCropAreaChange}
-        classes={{
-          mediaClassName: "bg-gray-700",
-        }}
-        // objectFit="contain"
-        showGrid={true}
-      />
+      {!currentImage || currentImage.length === 0 || currentImage === "undefined" ? (
+        <div className="text-gray-500 dark:text-gray-400">
+          No image to preview
+        </div>
+      ) : (
+        <Cropper
+          image={
+            currentImage == null
+              ? undefined
+              : `data:image/png;base64,${currentImage}`
+          }
+          crop={crop}
+          rotation={0}
+          zoom={zoom}
+          onCropChange={setCrop}
+          onZoomChange={setZoom}
+          minZoom={0.05}
+          aspect={aspect}
+          cropShape="rect"
+          restrictPosition={true}
+          onCropComplete={onCropAreaChange}
+          classes={{
+            mediaClassName: "bg-gray-700",
+          }}
+          // objectFit="contain"
+          showGrid={true}
+        />
+      )}
     </div>
   );
 };
