@@ -50,18 +50,18 @@ export const RemixIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
       <path
         d="M32 10        C19.5 10 10 20 10 32        C10 44 20 54 32 54        C41.5 54 50 48.5 53 40"
         stroke="currentColor"
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         id="path1"
       />
 
       <path
         d="m 51.054141,37.836055 3.420917,-1.672521 1.672521,3.420916"
         stroke="currentColor"
-        stroke-width="3"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         id="path2"
       />
 
