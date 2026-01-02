@@ -62,6 +62,7 @@ const createWindow = async(): Promise<void> => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
+  app.setName("Pixel Image AI App");
   createWindow();
   ipcMain.handle("show-folder", (event, directoryPath: string) => {
     return FileApi.showFolder(directoryPath);
