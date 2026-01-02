@@ -35,6 +35,10 @@ const App: React.FC = () => {
     maskNames: true,
   };
 
+  const validPixels = useMemo(() => {
+    return pixels && pixelInfo && pixels.length === pixelInfo.width * pixelInfo.height * pixelInfo.channels;
+  }, [pixels, pixelInfo]);
+
   useEffect(() => {
     if (!sizedImage) return;
     window.imageAPI
@@ -54,6 +58,10 @@ const App: React.FC = () => {
 
   const downloadEditedImage = useCallback(
     async (showToast = true) => {
+      if (!validPixels) {
+        alert("No valid pixel data to save.");
+        return;
+      }
       const png = await window.imageAPI.fromPixels(pixels, {
         width: pixelInfo?.width,
         height: pixelInfo?.height,
