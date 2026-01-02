@@ -6,4 +6,5 @@ declare interface AppSettings {
         height: number
     },
     elementType?: "tree" | "matrix"
+    modelEngine?: string
 }

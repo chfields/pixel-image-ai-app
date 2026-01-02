@@ -12,12 +12,12 @@ declare global {
       writeFileFromBase64: (fileDirectory: string, fileName: string, data: string) => Promise<string>;
     };
     aiAPI: {
-      runPrompt: (prompt: string, remixOptions?: { responseID?: string; imageInput?: string }) => Promise<any>;
+      runPrompt: (engineName: string, prompt: string, remixOptions?: { responseID?: string; imageInput?: string }) => Promise<any>;
       onResponseImage: (callback: (imageData: any) => void) => void;
       onResponseCompleted: (callback: (data: { responseID: string }) => void) => void;
       onReasoningSummaryDelta: (callback: (data: string) => void) => void;
       onStatusUpdate: (callback: (data: { status: string }) => void) => void;
-      stopCurrentResponse: () => Promise<void>;
+      stopCurrentResponse: (engineName: string) => Promise<void>;
     };
     imageAPI: {
       processImage: (imageData: string, imageOptions: ImageOptions) => Promise<string>;
@@ -33,6 +33,15 @@ declare global {
     };
     globalSettings: {
       maskNames: boolean;
+    };
+    secureApiKeyStorage: {
+      saveApiKey: (service: string, apiKey: string) => Promise<void>;
+      getApiKey: (service: string) => Promise<string | undefined>;
+      deleteApiKey: (service: string) => Promise<void>;
+    };
+    appSettingsAPI: {
+      saveSettings: (settings: AppSettings) => Promise<void>;
+      getSettings: () => Promise<AppSettings | undefined>;
     };
   }
 }

@@ -1,4 +1,4 @@
-export const CautionIcon = (props: { width?: string; height?: string }) => (
+export const CautionIcon = (props: { width?: string; height?: string; color?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={props.width || "800px"}
@@ -10,13 +10,13 @@ export const CautionIcon = (props: { width?: string; height?: string }) => (
   >
     <path
       d="M32 4L2 58H62L32 4Z"
-      stroke="currentColor"
+      stroke={props.color || "currentColor"}
       strokeWidth="4"
       strokeLinejoin="round"
     />
     <path
       d="M32 22V36"
-      stroke="currentColor"
+      stroke={props.color || "currentColor"}
       strokeWidth="4"
       strokeLinecap="round"
       strokeLinejoin="round"

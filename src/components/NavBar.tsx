@@ -13,64 +13,74 @@ import {
 } from "@heroui/react";
 import {
   FC,
-  Dispatch,
-  SetStateAction,
   ChangeEvent,
   useState,
   KeyboardEvent,
   useEffect,
 } from "react";
-import { CautionIcon, ClearIcon, CopyIcon, DownloadIcon, OpenIcon, SettingsIcon } from "../assets/icons/MenuBar";
-import { Warning } from "postcss/lib/postcss";
+import {
+  CautionIcon,
+  ClearIcon,
+  CopyIcon,
+  DownloadIcon,
+  OpenIcon,
+  SettingsIcon,
+} from "../assets/icons/MenuBar";
 
 type AppNavBarProps = {
   settings: AppSettings;
-  setSettings: Dispatch<SetStateAction<AppSettings>>;
+  onSettingsChange: (newSettings: AppSettings) => void; 
+  validSettings: Promise<boolean>;
   actions?: {
     download: (showToast?: boolean) => Promise<string>;
     copyToXlights: () => Promise<void>;
     openExistingImage: () => Promise<void>;
     clearImage: () => void;
+    openSettings: () => void;
   };
 };
 
 const AppNavBar: FC<AppNavBarProps> = ({
   settings,
-  setSettings,
+  onSettingsChange,
+  validSettings,
   actions,
 }: AppNavBarProps) => {
   const [tempRows, setTempRows] = useState<string>(
-    (settings.dimensions.height || 50).toString()
+    (settings?.dimensions?.height || 50).toString()
   );
   const [tempColumns, setTempColumns] = useState<string>(
-    (settings.dimensions.width || 16).toString()
+    (settings?.dimensions?.width || 16).toString()
   );
   const setSettingsWithDimensions = (
     value: string,
     dimension: "height" | "width"
   ) => {
     const newInt = parseInt(value, 10);
-    setSettings({
+    onSettingsChange({
       ...settings,
-      dimensions: { ...settings.dimensions, [dimension]: newInt },
+      dimensions: { ...settings?.dimensions, [dimension]: newInt },
     });
-    localStorage.setItem(
-      dimension === "height" ? "rows" : "columns",
-      newInt.toString()
-    );
   };
   const [elementType, setElementType] = useState<Selection>(
-    new Set([localStorage.getItem("elementType") || "tree"])
+    new Set([settings?.elementType])
   );
+  const [hasValidSettings, setHasValidSettings] = useState<boolean>(false);
 
   useEffect(() => {
-    const type = Array.from(elementType)[0] || "tree";
-    localStorage.setItem("elementType", type as string);
-    setSettings((prev) => ({
-      ...prev,
-      elementType: type as "tree" | "matrix",
-    }));
-  }, [elementType]);
+    const checkValidSettings = async () => {
+      const isValid = await validSettings;
+      setHasValidSettings(isValid);
+      console.log("Settings valid:", isValid);
+    };
+    checkValidSettings();
+  }, [validSettings]);
+
+  useEffect(() => {
+    setTempRows((settings?.dimensions?.height || 50).toString());
+    setTempColumns((settings?.dimensions?.width || 16).toString());
+    setElementType(new Set([settings?.elementType]));
+  }, [settings]);
 
   const maskNames = (name: string) => {
     if (!window.globalSettings?.maskNames) {
@@ -85,24 +95,24 @@ const AppNavBar: FC<AppNavBarProps> = ({
       <NavbarContent justify="start">
         <NavbarItem>
           <Button
-            variant={ !settings.directory ? "bordered" : "faded" }
-            color={ !settings.directory ? "warning" : "primary" }
-            className={`underline ${!settings.directory ? "text-warning" : "text-primary"} min-h-[48px]`}
+            variant={!(settings?.directory || null) ? "bordered" : "faded"}
+            color={"primary"}
+            className={`underline text-primary min-h-[48px]`}
             onPress={async () => {
               const directories = await window.fileAPI.selectDirectory();
               if (directories.length > 0) {
-                setSettings((prev: AppSettings) => ({
-                  ...prev,
-                  directory: directories[0],
-                }));
-                localStorage.setItem("currentDirectory", directories[0]);
+                const selectedDirectory = directories[0];
+                onSettingsChange({
+                  ...settings,
+                  directory: selectedDirectory,
+                });
               }
             }}
           >
-            {settings.directory
+            {settings?.directory
               ? `Directory: ${maskNames(settings.directory)}`
               : "Select Directory"}
-            { !settings.directory && (<CautionIcon width="16px" height="16px" />) }
+            {!(settings?.directory || null) && <CautionIcon color="#FFA500" width="16px" height="16px" />}
           </Button>
         </NavbarItem>
         <NavbarItem>
@@ -154,7 +164,16 @@ const AppNavBar: FC<AppNavBarProps> = ({
           </NavbarItem>
           <DropdownMenu
             selectedKeys={elementType}
-            onSelectionChange={setElementType}
+            onSelectionChange={(newSelection: Selection) => {
+              if (!settings) return;
+              setElementType(newSelection);
+              const selectedElement =
+                Array.from(newSelection)[0] || "tree";
+              onSettingsChange({
+                ...settings,
+                elementType: selectedElement as "tree" | "matrix",
+              });
+            }}  
             selectionMode="single"
           >
             <DropdownItem key={"tree"}>Tree</DropdownItem>
@@ -172,7 +191,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
               actions?.openExistingImage();
             }}
           >
-            <OpenIcon width="16px" height="16px"  /> Open Existing Image
+            <OpenIcon width="16px" height="16px" /> Open Existing Image
           </Button>
         </NavbarItem>
         <NavbarItem>
@@ -184,7 +203,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
               actions?.download();
             }}
           >
-            <DownloadIcon width="16px" height="16px"  /> Save PNG
+            <DownloadIcon width="16px" height="16px" /> Save PNG
           </Button>
         </NavbarItem>
         <NavbarItem>
@@ -196,7 +215,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
               actions?.copyToXlights();
             }}
           >
-            <CopyIcon width="16px" height="16px"  /> Copy to xLights
+            <CopyIcon width="16px" height="16px" /> Copy to xLights
           </Button>
         </NavbarItem>
         <NavbarItem>
@@ -216,25 +235,34 @@ const AppNavBar: FC<AppNavBarProps> = ({
                 actions?.clearImage();
               }}
             >
-              <ClearIcon width="24px" height="24px"  />
+              <ClearIcon width="24px" height="24px" />
             </Button>
           </Tooltip>
         </NavbarItem>
         <NavbarItem>
           <Tooltip
-            color="warning"
+            color={hasValidSettings ? "primary" : "warning"}
             className="max-w-[200px]"
             disableAnimation
-            content="Settings - Warning: Missing or incorrect settings may cause the app to malfunction."
+            content={
+              hasValidSettings
+                ? "Settings are valid."
+                : "Settings - Warning: Missing or incorrect settings may cause the app to malfunction."
+            }
+            delay={1000}
           >
             <Button
               variant="bordered"
-              color="warning"
+              color={ "primary" }
               className="min-h-[48px]"
               title="Settings"
+              onPress={() => {
+                actions?.openSettings();
+              }}
               endContent={
+                !hasValidSettings &&
                 <div className="m-1">
-                  <CautionIcon width="16px" height="16px" />
+                  <CautionIcon color="#FFA500" width="16px" height="16px" />
                 </div>
               }
             >

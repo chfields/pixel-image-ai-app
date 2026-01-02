@@ -4,7 +4,6 @@ import {
   ResponseOutputItem,
   ResponseReasoningSummaryTextDeltaEvent,
 } from "openai/resources/responses/responses";
-export const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export const SYSTEM_PROMPT = `You are a helpful image generator that can generate images for a pixel display.
 Generate images that are optimized for display on pixel-based lighting systems, such as those used in holiday light displays. The images should be clear and visually appealing when rendered on low-resolution grids of lights.
@@ -30,10 +29,27 @@ When generating images, follow these guidelines:
 * Do not add outlines to characters unless specifically requested.
 `;
 
-export class AiApi {
-  static currentController: AbortController | null = null;
+export class OpenAIApi implements AIEngine {
+  private openai: OpenAI;
 
-  static privateExtractImageFromResponse(
+  currentController: AbortController | null = null;
+
+  constructor(apiKey: string) {
+    this.openai = this.getOpenAIInstance({ apiKey });
+  }
+  engineName = "openai";
+
+  private getOpenAIInstance({ apiKey }: { apiKey: string }): OpenAI {
+    if (!this.openai) {
+      this.openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY || apiKey,
+      });
+    }
+    return this.openai;
+  }
+
+
+  private privateExtractImageFromResponse(
     event: Electron.IpcMainInvokeEvent,
     output: ResponseOutputItem[] | string
   ) {
@@ -48,19 +64,19 @@ export class AiApi {
     event.sender.send("ai-response-image", imageResult);
   }
 
-  static async stopCurrentResponse(): Promise<void> {
-    if (AiApi.currentController) {
-      AiApi.currentController.abort();
+  async stopCurrentResponse(): Promise<void> {
+    if (this.currentController) {
+      this.currentController.abort();
     }
   }
-
-  static async runPrompt(
+  
+  async runPrompt(
     event: Electron.IpcMainInvokeEvent,
     prompt: string,
     remixOptions?: { responseID?: string; imageInput?: string }
   ): Promise<any> {
-    AiApi.currentController = new AbortController();
-    const signal = AiApi.currentController.signal;
+    this.currentController = new AbortController();
+    const signal = this.currentController.signal;
 
     const userContent =
       remixOptions?.imageInput && !remixOptions.responseID
@@ -93,6 +109,7 @@ export class AiApi {
     input.push(userContent);
 
     try {
+      const openai = this.openai;
       // Placeholder implementation for AI prompt processing
       // Replace this with actual AI integration logic
       const response = await openai.responses.create(
@@ -143,7 +160,7 @@ export class AiApi {
         console.log("Received chunk of type:", chunk.type);
         switch (chunk.type) {
           case "response.completed":
-            AiApi.privateExtractImageFromResponse(event, chunk.response.output);
+            this.privateExtractImageFromResponse(event, chunk.response.output);
             event.sender.send("ai-response-completed", {
               responseID: chunk.response.id,
             });
@@ -151,7 +168,7 @@ export class AiApi {
           case "response.image_generation_call.partial_image": {
             const { partial_image_b64 } =
               chunk as ResponseImageGenCallPartialImageEvent;
-            AiApi.privateExtractImageFromResponse(event, partial_image_b64);
+            this.privateExtractImageFromResponse(event, partial_image_b64);
             break;
           }
           case "response.reasoning_summary_text.delta": {
@@ -183,9 +200,10 @@ export class AiApi {
         console.log("AI response was aborted.");
       } else {
         console.error("Error during AI response:", error);
+        throw error;
       }
     } finally {
-      AiApi.currentController = null;
+      this.currentController = null;
     }
 
     return null;

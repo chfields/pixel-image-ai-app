@@ -26,17 +26,6 @@ const PreviewImage: FC<{
 
   console.log('image', image?.substring(0, 30), typeof image);
 
-  useEffect(() => {
-    localStorage.setItem("generatedImage", image);
-    setCurrentImage(image);
-  }, [image]);
-
-  useEffect(() => {
-    const savedImage = localStorage.getItem("generatedImage");
-    if (savedImage) {
-      setCurrentImage(savedImage);
-    }
-  }, []);
 
   const onCropAreaChange = (croppedArea: CropArea) => {
     if (!croppedArea.width || !croppedArea.height || !currentImage || currentImage === "null" || currentImage === "undefined") return;

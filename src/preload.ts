@@ -44,10 +44,11 @@ contextBridge.exposeInMainWorld("imageAPI", {
 
 contextBridge.exposeInMainWorld("aiAPI", {
   runPrompt: (
+    engineName: string,
     prompt: string,
     remixOptions?: { responseID?: string; imageInput?: string }
   ) => {
-    return ipcRenderer.invoke("run-prompt", prompt, remixOptions);
+    return ipcRenderer.invoke("run-prompt", engineName, prompt, remixOptions);
   },
   onResponseImage: (
     callback: (imageData: ResponseOutputItem.ImageGenerationCall) => void
@@ -74,8 +75,8 @@ contextBridge.exposeInMainWorld("aiAPI", {
       callback(data);
     });
   },
-  stopCurrentResponse: () => {
-    return ipcRenderer.invoke("ai-stop-current-response");
+  stopCurrentResponse: (engineName: string) => {
+    return ipcRenderer.invoke("ai-stop-current-response", engineName);
   },
 });
 
@@ -90,4 +91,27 @@ contextBridge.exposeInMainWorld("clipboardAPI", {
 
 contextBridge.exposeInMainWorld("envVars", {
   homeDir: process.env.HOME || "",
+});
+
+
+contextBridge.exposeInMainWorld("secureApiKeyStorage", {
+  saveApiKey: (service: string, apiKey: string) => {
+    return ipcRenderer.invoke("api-key-save", service, apiKey);
+  },
+  getApiKey: (service: string) => {
+    return ipcRenderer.invoke("api-key-get", service);
+  },
+  deleteApiKey: (service: string) => {
+    return ipcRenderer.invoke("api-key-delete", service);
+  },
+});
+
+
+contextBridge.exposeInMainWorld("appSettingsAPI", {
+  saveSettings: (settings: AppSettings) => {
+    return ipcRenderer.invoke("settings-save", settings);
+  },
+  getSettings: () => {
+    return ipcRenderer.invoke("settings-get");
+  },
 });

@@ -1,12 +1,15 @@
-import { Button, Card, CardFooter, Spinner, Textarea } from "@heroui/react";
+import { addToast, Button, Card, CardFooter, Spinner, Textarea, ToastVariantProps } from "@heroui/react";
 import { createRef, FC, useEffect, useMemo, useState } from "react";
 import ReasoningViewer from "./ReasoningViewer";
 import { RemixIcon, SparklesIcon, StopIcon } from "../assets/icons/Prompt";
 
+const DEFAULT_MODEL_ENGINE = "openai";
+
 const Prompt: FC<{
   image: string | null;
   setImage: React.Dispatch<React.SetStateAction<string | null>>;
-}> = ({ image, setImage }) => {
+  settings: AppSettings;
+}> = ({ image, setImage, settings }) => {
   const [prompt, setPrompt] = useState<string>("");
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [responseID, setResponseID] = useState<string | null>(null);
@@ -18,7 +21,6 @@ const Prompt: FC<{
     return image !== "undefined" && image !== "null" && image !== null;
   }, [responseID, image]);
 
-
   const generateImage = (remixOptions?: {
     responseIDInput?: string;
     imageInput?: string;
@@ -27,9 +29,19 @@ const Prompt: FC<{
     setReasoningSummary("");
     setStatus("Starting...");
     window.aiAPI
-      .runPrompt(prompt, remixOptions)
+      .runPrompt(
+        settings.modelEngine || DEFAULT_MODEL_ENGINE,
+        prompt,
+        canRemix ? remixOptions : undefined
+      )
       .then((data) => {
         console.log("File data:", data);
+      }).catch((error) => {
+        addToast({
+          title: "Error",
+          description: `Failed to generate image: ${error.message}`,
+          color: "danger",
+        } as ToastVariantProps);
       })
       .finally(() => {
         setIsRunning(false);
@@ -118,7 +130,12 @@ const Prompt: FC<{
           />
           <CardFooter className="flex items-center justify-between">
             <div className="flex gap-2">
-              <Button color="primary" size="sm" onPress={() => generateImage()} startContent={ <SparklesIcon width={16} height={16}  /> }>
+              <Button
+                color="primary"
+                size="sm"
+                onPress={() => generateImage()}
+                startContent={<SparklesIcon width={16} height={16} />}
+              >
                 Generate
               </Button>
               {canRemix && (
@@ -131,7 +148,7 @@ const Prompt: FC<{
                       imageInput: image,
                     });
                   }}
-                  startContent={ <RemixIcon width={16} height={16}  /> }
+                  startContent={<RemixIcon width={16} height={16} />}
                 >
                   Remix
                 </Button>
@@ -149,12 +166,14 @@ const Prompt: FC<{
                   size="sm"
                   title="Stop"
                   onPress={async () => {
-                    await window.aiAPI.stopCurrentResponse();
+                    await window.aiAPI.stopCurrentResponse(
+                      settings.modelEngine || DEFAULT_MODEL_ENGINE
+                    );
                     setIsRunning(false);
                     setStatus("");
                   }}
                 >
-                    <StopIcon />
+                  <StopIcon />
                 </Button>
               )}
             </div>

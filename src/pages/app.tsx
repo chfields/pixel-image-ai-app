@@ -5,23 +5,17 @@ import PreviewImage from "../components/PreviewImage";
 import PixelDisplay from "../components/PixelDisplay";
 import AppNavBar from "../components/NavBar";
 import { App } from "electron";
+import SettingsModal from "../components/SettingsModal";
 
 const App: React.FC = () => {
+  const [isSettingsModalOpen, setIsSettingsModalOpen] =
+    useState<boolean>(false);
   const [image, setImage] = useState<string | null>(() => {
     return localStorage.getItem("generatedImage") || null;
   });
   const [sizedImage, setSizedImage] = useState<string>("");
   const [pixels, setPixels] = useState<Uint8ClampedArray | null>(null);
-  const [appSettings, setAppSettings] = useState<AppSettings>(() => {
-    const savedDirectory = localStorage.getItem("currentDirectory");
-    return {
-      directory: savedDirectory || "",
-      dimensions: {
-        width: parseInt(localStorage.getItem("columns") || "16", 10),
-        height: parseInt(localStorage.getItem("rows") || "50", 10),
-      },
-    };
-  });
+  const [appSettings, setAppSettings] = useState<AppSettings | undefined>(undefined);
   const [xOffset, setXOffset] = useState<number>(0);
   const [yOffset, setYOffset] = useState<number>(0);
 
@@ -35,8 +29,38 @@ const App: React.FC = () => {
     maskNames: true,
   };
 
+  const loadSettings = useCallback(async () => {
+    const savedSettings = await window.appSettingsAPI.getSettings();
+    if (savedSettings) {
+      console.log("Loaded saved settings:", savedSettings);
+      setAppSettings(savedSettings);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+
+  const validSettings = useMemo(async () => {
+    const engine = appSettings?.modelEngine;
+    console.log("Validating settings for engine:", engine);
+    if (!engine) {
+      return false;
+    }
+    const apiKey = await window.secureApiKeyStorage.getApiKey(engine);
+    if (!apiKey) {
+      return false;
+    }
+
+    return true;
+  }, [appSettings]);
+
   const validPixels = useMemo(() => {
-    return pixels && pixelInfo && pixels.length === pixelInfo.width * pixelInfo.height * pixelInfo.channels;
+    return (
+      pixels &&
+      pixelInfo &&
+      pixels.length === pixelInfo.width * pixelInfo.height * pixelInfo.channels
+    );
   }, [pixels, pixelInfo]);
 
   useEffect(() => {
@@ -155,7 +179,7 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
   }, [pixels, pixelInfo, xOffset, yOffset, downloadEditedImage]);
 
   const dimensions = useMemo(() => {
-    return appSettings.dimensions;
+    return appSettings?.dimensions || { width: 16, height: 50 };
   }, [appSettings]);
 
   const openexistingImage = useCallback(async () => {
@@ -166,6 +190,10 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
     }
   }, []);
 
+  const openSettings = useCallback(() => {
+    setIsSettingsModalOpen(true);
+  }, []);
+
   const clearImage = useCallback(() => {
     setImage(null);
     setSizedImage("");
@@ -174,20 +202,40 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
     localStorage.removeItem("generatedImage");
   }, [setImage, setSizedImage, setPixels, setPixelInfo]);
 
+  const saveSettings = useCallback((newSettings: AppSettings) => {
+    if (!newSettings) return;
+    console.log("Saving settings:", newSettings);
+    setAppSettings(newSettings);
+    window.appSettingsAPI.saveSettings(newSettings);
+  }, []);
+
+
   return (
     <div className="w-full">
       <AppNavBar
         settings={appSettings}
-        setSettings={setAppSettings}
+        onSettingsChange={(newSettings: AppSettings) => {
+          saveSettings(newSettings);
+        }}
+        validSettings={validSettings}
         actions={{
           download: downloadEditedImage,
           copyToXlights: copyToXlights,
           openExistingImage: openexistingImage,
-          clearImage
+          clearImage,
+          openSettings,
         }}
       />
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        onChangeSettings={(newSettings) => {
+          saveSettings(newSettings);
+        }}
+        currentSettings={appSettings}
+      />
       <div className="w-full flex items-center justify-center">
-        <Prompt setImage={setImage} image={image} />
+        <Prompt setImage={setImage} image={image} settings={appSettings} />
       </div>
       <div className="flex flex-row w-full gap-4 mt-2 justify-center items-start p-2">
         <Card title="Generated Image Preview" className="w-full p-6">
@@ -203,13 +251,13 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
         <Card title="Pixel Data Preview" className="w-full p-4">
           <PixelDisplay
             pixels={pixels}
-            pixelHeight={dimensions.height}
-            pixelWidth={dimensions.width}
+            pixelHeight={dimensions.height || 50}
+            pixelWidth={dimensions.width || 16}
             width={pixelInfo?.width ?? dimensions.width}
             pixelSize={5}
             gap={8}
             showOutline={true}
-            isTree={appSettings.elementType === "tree"}
+            isTree={appSettings?.elementType === "tree"}
             setPixels={(newPixels: Uint8ClampedArray) => {
               console.log("Updating pixels from PixelDisplay component");
               setPixels(newPixels);
