@@ -1,5 +1,6 @@
 {
   "name": "pixel-image-ai-app",
+  "type": "module",
   "productName": "pixel-image-ai-app",
   "version": "1.0.0",
   "description": "My Electron application description",
