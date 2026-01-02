@@ -8,6 +8,7 @@ import {
   Navbar,
   NavbarContent,
   NavbarItem,
+  Tooltip,
   type Selection,
 } from "@heroui/react";
 import {
@@ -19,6 +20,8 @@ import {
   KeyboardEvent,
   useEffect,
 } from "react";
+import { CautionIcon, ClearIcon, CopyIcon, DownloadIcon, OpenIcon, SettingsIcon } from "../assets/icons/MenuBar";
+import { Warning } from "postcss/lib/postcss";
 
 type AppNavBarProps = {
   settings: AppSettings;
@@ -157,56 +160,86 @@ const AppNavBar: FC<AppNavBarProps> = ({
             <DropdownItem key={"matrix"}>Matrix</DropdownItem>
           </DropdownMenu>
         </Dropdown>
-
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem>
           <Button
             variant="faded"
             color="primary"
-            className="min-h-[48px]"
+            className="min-h-[48px] text-xs"
             onPress={() => {
               actions?.openExistingImage();
             }}
           >
-            Open Existing Image
+            <OpenIcon width="16px" height="16px"  /> Open Existing Image
           </Button>
         </NavbarItem>
         <NavbarItem>
           <Button
             variant="faded"
             color="primary"
-            className="min-h-[48px]"
+            className="min-h-[48px] text-xs"
             onPress={() => {
               actions?.download();
             }}
           >
-            Save PNG
+            <DownloadIcon width="16px" height="16px"  /> Save PNG
           </Button>
         </NavbarItem>
         <NavbarItem>
           <Button
             variant="faded"
             color="primary"
-            className="min-h-[48px]"
+            className="min-h-[48px] text-xs"
             onPress={() => {
               actions?.copyToXlights();
             }}
           >
-            Copy to xLights
+            <CopyIcon width="16px" height="16px"  /> Copy to xLights
           </Button>
         </NavbarItem>
         <NavbarItem>
-          <Button
-            variant="faded"
-            color="secondary"
-            className="min-h-[48px]"
-            onPress={() => {
-              actions?.clearImage();
-            }}
+          <Tooltip
+            content="Clear the current image from the app. This action cannot be undone."
+            disableAnimation
+            color="danger"
+            delay={1000}
+            className="max-w-[200px]"
           >
-            Clear
-          </Button>
+            <Button
+              variant="bordered"
+              color="danger"
+              className="min-h-[48px]"
+              isIconOnly
+              onPress={() => {
+                actions?.clearImage();
+              }}
+            >
+              <ClearIcon width="24px" height="24px"  />
+            </Button>
+          </Tooltip>
+        </NavbarItem>
+        <NavbarItem>
+          <Tooltip
+            color="warning"
+            className="max-w-[200px]"
+            disableAnimation
+            content="Settings - Warning: Missing or incorrect settings may cause the app to malfunction."
+          >
+            <Button
+              variant="bordered"
+              color="warning"
+              className="min-h-[48px]"
+              title="Settings"
+              endContent={
+                <div className="m-1">
+                  <CautionIcon width="16px" height="16px" />
+                </div>
+              }
+            >
+              <SettingsIcon width="24px" height="24px" fill="currentColor" />
+            </Button>
+          </Tooltip>
         </NavbarItem>
       </NavbarContent>
     </Navbar>

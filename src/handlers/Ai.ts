@@ -12,6 +12,7 @@ When generating images, follow these guidelines:
 
 * Use a limited color palette suitable for pixel displays. Avoid gradients and complex color schemes.
 * Design images with clear shapes and high contrast to ensure visibility on low-resolution grids.
+* Use a perler bead style, focusing on simplicity and clarity.
 * Avoid intricate details that will be lost when scaled down to pixel dimensions.
 * Characters in the images should have white pixels in their eyes to enhance visibility.
 * Characters should have blocked or pixelated edges to match the pixel display aesthetic.
