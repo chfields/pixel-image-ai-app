@@ -1,4 +1,4 @@
-import { App, app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import { FileApi } from "./handlers/file";
 import { EngineFactory } from "./handlers/ai_engines/EngineFactory";
 import { ImageApi } from "./handlers/Image";
@@ -59,12 +59,10 @@ const createWindow = async (): Promise<void> => {
   mainWindow.webContents.openDevTools();
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on("ready", () => {
-  app.setName("Pixel Image AI App");
-  createWindow();
+let engine: AIEngine | null = null;
+
+const createIpcHandlers = () => {
+    
   ipcMain.handle("show-folder", (event, directoryPath: string) => {
     return FileApi.showFolder(directoryPath);
   });
@@ -77,9 +75,7 @@ app.on("ready", () => {
     }
   );
   const apiKeyStorage = new ApiKeyStorage(store);
-  apiKeyStorage.initialize();
 
-  let engine = EngineFactory.getEngine("openai", apiKeyStorage);
   ipcMain.handle("run-prompt", (event, engineName, prompt, remixOptions) => {
     if (engineName !== engine?.engineName) {
       engine = EngineFactory.getEngine(engineName, apiKeyStorage);
@@ -133,6 +129,27 @@ app.on("ready", () => {
   ipcMain.handle("settings-get", () => {
     return store.get("appSettings");
   });
+
+  return { apiKeyStorage };
+}
+
+const { apiKeyStorage } = createIpcHandlers();
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.whenReady().then(() => {
+  app.setName("Pixel Image AI App");
+
+  apiKeyStorage.initialize().then(() => {
+    engine = EngineFactory.getEngine("openai", apiKeyStorage);
+    console.log("API key storage initialized.");
+    console.log("Engine initialized:", engine ? engine.engineName : "No engine");
+  }).catch((err) => {
+    console.error("Failed to initialize API key storage:", err);
+  });
+
+  createWindow();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

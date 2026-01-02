@@ -23,6 +23,7 @@ export class ApiKeyStorage {
                             this.isInitialized = true;
                         } else {
                             resolve(false);
+                            console.error("Safe storage encryption is not available.");
                             this.isInitialized = false;
                         }
                     }, 3000);
@@ -33,12 +34,21 @@ export class ApiKeyStorage {
     }
 
     public saveApiKey(service: string, apiKey: string): void {
-        if (!this.isInitialized) return;
+        if (!this.isInitialized) {
+            console.error("ApiKeyStorage not initialized. Cannot save API key with encryption. Will be available when app is signed.");
+            this.store.set(`apiKeys.${service}`, apiKey);
+            return;
+        }
+        console.info(`Saving API key for service: ${service}`);
         const encryptedKey = safeStorage.encryptString(apiKey);
         this.store.set(`apiKeys.${service}`, encryptedKey.toString("base64"));
     }
 
     public getApiKey(service: string): string | undefined {
+        if (!this.isInitialized) {
+            console.warn("ApiKeyStorage not initialized. Cannot get API key with encryption. Will be available when app is signed.");
+            return this.store.get(`apiKeys.${service}`) as string | undefined;
+        }
         const encryptedKeyBase64 = this.store.get(`apiKeys.${service}`) as string | undefined;
         if (!encryptedKeyBase64) {
             return undefined;
