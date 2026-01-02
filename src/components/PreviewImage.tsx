@@ -5,7 +5,7 @@ const DEFAULT_WIDTH = 16;
 const DEFAULT_HEIGHT = 50;
 
 const PreviewImage: FC<{
-  image?: string;
+  image?: string | null;
   width: number;
   height: number;
   setSizedImage: (image: string) => void;
@@ -24,6 +24,8 @@ const PreviewImage: FC<{
     return DEFAULT_WIDTH / DEFAULT_HEIGHT;
   }, [width, height]);
 
+  console.log('image', image?.substring(0, 30), typeof image);
+
   useEffect(() => {
     localStorage.setItem("generatedImage", image);
     setCurrentImage(image);
@@ -37,7 +39,7 @@ const PreviewImage: FC<{
   }, []);
 
   const onCropAreaChange = (croppedArea: CropArea) => {
-    if (!croppedArea.width || !croppedArea.height || !currentImage) return;
+    if (!croppedArea.width || !croppedArea.height || !currentImage || currentImage === "null" || currentImage === "undefined") return;
     console.log(
       `Cropped area: x=${croppedArea.x}, y=${croppedArea.y}, width=${croppedArea.width}, height=${croppedArea.height}`
     );
@@ -61,7 +63,7 @@ const PreviewImage: FC<{
     <div
       className={`${className} flex flex-row w-full items-center justify-center relative h-[300px] w-[100px] bg-gray-200 dark:bg-gray-800 border border-gray-400 dark:border-gray-600`}
     >
-      {!currentImage || currentImage.length === 0 || currentImage === "undefined" ? (
+      {!currentImage || currentImage.length === 0 || currentImage === "undefined" || currentImage === "null" ? (
         <div className="text-gray-500 dark:text-gray-400">
           No image to preview
         </div>
