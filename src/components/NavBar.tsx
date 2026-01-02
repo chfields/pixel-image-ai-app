@@ -84,10 +84,10 @@ const AppNavBar: FC<AppNavBarProps> = ({
     <Navbar isBlurred isBordered position="sticky" maxWidth="full">
       <NavbarContent justify="start">
         <NavbarItem>
-          {" "}
           <Button
-            variant="faded"
-            className="underline text-blue-400 min-h-[48px]"
+            variant={ !settings.directory ? "bordered" : "faded" }
+            color={ !settings.directory ? "warning" : "primary" }
+            className={`underline ${!settings.directory ? "text-warning" : "text-primary"} min-h-[48px]`}
             onPress={async () => {
               const directories = await window.fileAPI.selectDirectory();
               if (directories.length > 0) {
@@ -102,6 +102,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
             {settings.directory
               ? `Directory: ${maskNames(settings.directory)}`
               : "Select Directory"}
+            { !settings.directory && (<CautionIcon width="16px" height="16px" />) }
           </Button>
         </NavbarItem>
         <NavbarItem>
@@ -109,7 +110,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
             size="sm"
             label="Rows"
             type="number"
-            className="min-w-[80px]"
+            className="max-w-[90px] min-w-[90px]"
             value={tempRows}
             onValueChange={(value: string) => setTempRows(value)}
             onBlur={(e: ChangeEvent<HTMLInputElement>) => {
@@ -127,7 +128,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
             size="sm"
             label="Columns"
             type="number"
-            className="min-w-[80px]"
+            className="max-w-[90px] min-w-[90px]"
             value={tempColumns}
             onValueChange={(value: string) => setTempColumns(value)}
             onBlur={(e: ChangeEvent<HTMLInputElement>) => {
