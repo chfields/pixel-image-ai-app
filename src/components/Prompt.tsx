@@ -1,6 +1,7 @@
 import { Button, Card, CardFooter, Spinner, Textarea } from "@heroui/react";
-import { createRef, FC, use, useEffect, useMemo, useState } from "react";
+import { createRef, FC, useEffect, useMemo, useState } from "react";
 import ReasoningViewer from "./ReasoningViewer";
+import { RemixIcon, SparklesIcon, StopIcon } from "../assets/icons/Prompt";
 
 const Prompt: FC<{
   image: string | null;
@@ -17,7 +18,6 @@ const Prompt: FC<{
     return image !== "undefined" && image !== "null" && image !== null;
   }, [responseID, image]);
 
-  console.log("Current image:", image?.substring(0, 30) + "...");
 
   const generateImage = (remixOptions?: {
     responseIDInput?: string;
@@ -118,7 +118,7 @@ const Prompt: FC<{
           />
           <CardFooter className="flex items-center justify-between">
             <div className="flex gap-2">
-              <Button color="primary" size="sm" onPress={() => generateImage()}>
+              <Button color="primary" size="sm" onPress={() => generateImage()} startContent={ <SparklesIcon width={16} height={16}  /> }>
                 Generate
               </Button>
               {canRemix && (
@@ -131,6 +131,7 @@ const Prompt: FC<{
                       imageInput: image,
                     });
                   }}
+                  startContent={ <RemixIcon width={16} height={16}  /> }
                 >
                   Remix
                 </Button>
@@ -153,22 +154,7 @@ const Prompt: FC<{
                     setStatus("");
                   }}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    role="img"
-                    aria-label="Stop"
-                  >
-                    <title>Square</title>
-                    <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
-                  </svg>
+                    <StopIcon />
                 </Button>
               )}
             </div>

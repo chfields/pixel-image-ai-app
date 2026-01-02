@@ -15,6 +15,7 @@ When generating images, follow these guidelines:
 * Avoid intricate details that will be lost when scaled down to pixel dimensions.
 * Characters in the images should have white pixels in their eyes to enhance visibility.
 * Characters should have blocked or pixelated edges to match the pixel display aesthetic.
+* Characters should not have transparent or black as the primary color. Use solid, bright colors instead.
 * For facial features like eyes and mouths, openings should be the background color.
 * Do not use black or near-black anywhere. Empty space must be transparent/off pixels (alpha = 0), not black fill.
 * Use bright, saturated colors only; avoid low-luminance tones.
