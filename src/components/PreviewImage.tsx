@@ -26,6 +26,10 @@ const PreviewImage: FC<{
 
   console.log('image', image?.substring(0, 30), typeof image);
 
+  useEffect(() => {
+    setCurrentImage(image);
+  }, [image]);
+
 
   const onCropAreaChange = (croppedArea: CropArea) => {
     if (!croppedArea.width || !croppedArea.height || !currentImage || currentImage === "null" || currentImage === "undefined") return;

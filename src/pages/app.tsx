@@ -209,6 +209,14 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
     window.appSettingsAPI.saveSettings(newSettings);
   }, []);
 
+  useEffect(() => {
+    // image updated
+    if (image) {
+      localStorage.setItem("generatedImage", image);
+      console.log("Image updated, resizing to dimensions:", dimensions);
+    }
+  }, [image]);
+
 
   return (
     <div className="w-full">
