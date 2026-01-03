@@ -30,6 +30,7 @@ declare global {
     };
     envVars: {
       homeDir: string;
+      platform: string;
     };
     globalSettings: {
       maskNames: boolean;

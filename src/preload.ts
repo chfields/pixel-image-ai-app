@@ -92,6 +92,7 @@ contextBridge.exposeInMainWorld("clipboardAPI", {
 
 contextBridge.exposeInMainWorld("envVars", {
   homeDir: process.env.HOME || "",
+  platform: process.platform,
 });
 
 

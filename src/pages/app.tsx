@@ -95,8 +95,11 @@ const App: React.FC = () => {
         alert("Please select a directory first.");
         return;
       }
+      // path seperator based on OS
+      const pathSep = window.envVars.platform === "win32" ? "\\" : "/";
+
       // name should be last part of path + elementtype + index + .png
-      const lastofPath = appSettings.directory.split("/").pop() || "image";
+      const lastofPath = appSettings.directory.split(pathSep).pop() || "image";
       const fileName = `${lastofPath}_${appSettings.elementType || "image"}.png`;
       const finalPath = await window.fileAPI.writeFileFromBase64(
         `${appSettings?.directory}/images`,
