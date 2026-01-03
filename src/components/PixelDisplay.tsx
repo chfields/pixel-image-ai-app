@@ -360,6 +360,14 @@ export default function PixelDisplay({
                     <div
                       key={colIndex}
                       data-pixelindex={rowIndex * width + colIndex}
+                      onMouseEnter={
+                        (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => { 
+                          // log if mouse button is pressed
+                          if (e.buttons === 1) {
+                            handlePixelClick(rowIndex * width + colIndex, e);
+                          }
+                        }
+                      }
                       onClick={(e) => {
                         handlePixelClick(rowIndex * width + colIndex, e);
                       }}
