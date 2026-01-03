@@ -10,6 +10,9 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 
 import { mainConfig } from "./webpack.main.config";
 import { rendererConfig } from "./webpack.renderer.config";
+// add dotconfig support
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -17,6 +20,14 @@ const config: ForgeConfig = {
       // Ensure sharp is unpacked from the asar archive
       unpack: "**/node_modules/{sharp,@img}/**/*",
     },
+    osxSign: {
+      identity: process.env.OSX_SIGN_IDENTITY || undefined,
+    },
+    // osxNotarize: {
+    //   appleId: process.env.APPLE_ID || "",
+    //   appleIdPassword: process.env.APPLE_ID_PASSWORD || "",
+    //   teamId: process.env.APPLE_TEAM_ID || "",
+    // },
   },
   rebuildConfig: {},
   makers: [
