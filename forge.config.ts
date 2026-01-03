@@ -25,6 +25,19 @@ const config: ForgeConfig = {
     new MakerRpm({}),
     new MakerDeb({}),
   ],
+  publishers: [
+    {
+      name: "@electron-forge/publisher-github",
+      config: {
+        repository: {
+          owner: "chfields",
+          name: "pixel-image-ai-app",
+        },
+        prerelease: false,
+        draft: true,
+      },
+    },
+  ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({

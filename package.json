@@ -1,7 +1,7 @@
 {
   "name": "pixel-image-ai-app",
   "productName": "pixel-image-ai-app",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
@@ -23,6 +23,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
     "@electron-forge/plugin-fuses": "^7.10.2",
     "@electron-forge/plugin-webpack": "^7.10.2",
+    "@electron-forge/publisher-github": "^7.10.2",
     "@electron/fuses": "^1.8.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/react": "^19.2.7",
@@ -65,5 +66,6 @@
     "react-easy-crop": "^5.5.6",
     "react-markdown": "^10.1.0",
     "sharp": "^0.34.5"
-  }
+  },
+  "repository": "github:chfields/pixel-image-ai-app"
 }
