@@ -12,7 +12,7 @@ declare global {
       writeFileFromBase64: (fileDirectory: string, fileName: string, data: string) => Promise<string>;
     };
     aiAPI: {
-      runPrompt: (engineName: string, prompt: string, remixOptions?: { responseID?: string; imageInput?: string }) => Promise<any>;
+      runPrompt: (engineName: string, prompt: string, modelsOptions?: { model?: string }, remixOptions?: { responseID?: string; imageInput?: string }) => Promise<any>;
       onResponseImage: (callback: (imageData: any) => void) => void;
       onResponseCompleted: (callback: (data: { responseID: string }) => void) => void;
       onReasoningSummaryDelta: (callback: (data: string) => void) => void;

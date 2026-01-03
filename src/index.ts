@@ -41,6 +41,7 @@ const createWindow = async (): Promise<void> => {
     minWidth: 800,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      devTools: process.env.NODE_ENV === "development",
     },
   });
 
@@ -76,14 +77,14 @@ const createIpcHandlers = () => {
   );
   const apiKeyStorage = new ApiKeyStorage(store);
 
-  ipcMain.handle("run-prompt", (event, engineName, prompt, remixOptions) => {
+  ipcMain.handle("run-prompt", (event, engineName, prompt, modelsOptions, remixOptions) => {
     if (engineName !== engine?.engineName) {
       engine = EngineFactory.getEngine(engineName, apiKeyStorage);
       if (!engine) {
         throw new Error(`No API key found for engine: ${engineName}`);
       }
     }
-    return EngineFactory.runPrompt(engine, event, prompt, remixOptions);
+    return EngineFactory.runPrompt(engine, event, prompt, modelsOptions, remixOptions);
   });
   ipcMain.handle("ai-stop-current-response", async (event, engineName) => {
     if (engineName !== engine?.engineName) {

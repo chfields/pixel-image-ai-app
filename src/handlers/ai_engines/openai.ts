@@ -48,7 +48,6 @@ export class OpenAIApi implements AIEngine {
     return this.openai;
   }
 
-
   private privateExtractImageFromResponse(
     event: Electron.IpcMainInvokeEvent,
     output: ResponseOutputItem[] | string
@@ -69,10 +68,11 @@ export class OpenAIApi implements AIEngine {
       this.currentController.abort();
     }
   }
-  
+
   async runPrompt(
     event: Electron.IpcMainInvokeEvent,
     prompt: string,
+    modelsOptions?: ModelOptions,
     remixOptions?: { responseID?: string; imageInput?: string }
   ): Promise<any> {
     this.currentController = new AbortController();
@@ -108,51 +108,51 @@ export class OpenAIApi implements AIEngine {
 
     input.push(userContent);
 
+    const model = modelsOptions?.model || "gpt-5.2"; 
+
+    const knownModelsWithReasoning = ["gpt-5", "gpt-5.1", "gpt-5.2"];
+    const isReasoningModel = model && knownModelsWithReasoning.includes(model);
+
+    const baseModelOptions: OpenAI.Responses.ResponseCreateParamsStreaming = {
+      model: model,
+      previous_response_id: remixOptions?.responseID
+        ? remixOptions.responseID
+        : undefined,
+      stream: true,
+      input,
+      include: [],
+      tools: [
+        {
+          type: "image_generation",
+          model: "gpt-image-1.5",
+          size: "1024x1024",
+          quality: "low",
+          output_format: "png",
+          background: "transparent",
+          moderation: "auto",
+          partial_images: 0,
+        },
+      ],
+    };
+
+    if (isReasoningModel) {
+      baseModelOptions.reasoning = {
+        summary: "detailed",
+        effort: "medium",
+      };
+      baseModelOptions.text = {
+        verbosity: "high",
+      };
+      baseModelOptions.store = true;
+      baseModelOptions.include.push("reasoning.encrypted_content");
+    }
+
     try {
       const openai = this.openai;
       // Placeholder implementation for AI prompt processing
       // Replace this with actual AI integration logic
       const response = await openai.responses.create(
-        {
-          model: "gpt-5.2",
-          previous_response_id: remixOptions?.responseID
-            ? remixOptions.responseID
-            : undefined,
-          stream: true,
-          reasoning: {
-            summary: "detailed",
-            effort: "medium",
-          },
-          text: {
-            verbosity: "high",
-          },
-          store: true,
-          input,
-          include: [
-            "reasoning.encrypted_content",
-            "web_search_call.action.sources",
-          ],
-          tools: [
-            {
-              type: "image_generation",
-              model: "gpt-image-1.5",
-              size: "1024x1024",
-              quality: "low",
-              output_format: "png",
-              background: "transparent",
-              moderation: "auto",
-              partial_images: 0,
-            },
-            // {
-            //   type: "web_search",
-            //   user_location: {
-            //     type: "approximate",
-            //     country: "US",
-            //   },
-            //   search_context_size: "low",
-            // },
-          ],
-        },
+        baseModelOptions as OpenAI.Responses.ResponseCreateParamsStreaming,
         { signal }
       );
 
@@ -190,6 +190,9 @@ export class OpenAIApi implements AIEngine {
             break;
           case "response.output_text.delta":
             console.log("Output text delta:", chunk.delta);
+            event.sender.send("ai-response-reasoning-summary-text-delta", {
+              delta: chunk.delta,
+            });
             break;
           default:
             break;

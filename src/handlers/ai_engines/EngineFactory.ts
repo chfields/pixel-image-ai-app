@@ -19,9 +19,11 @@ export class EngineFactory {
     engine: AIEngine,
     event: Electron.IpcMainInvokeEvent,
     prompt: string,
+    modelsOptions?: ModelOptions,
     remixOptions?: { responseID?: string; imageInput?: string }
   ): Promise<any> {
-    return engine.runPrompt(event, prompt, remixOptions);
+    console.log(`Running prompt with engine: ${engine.engineName} and model: ${modelsOptions?.model}`);
+    return engine.runPrompt(event, prompt, modelsOptions, remixOptions);
   }
 
   static async stopCurrentResponse(engine: AIEngine): Promise<void> {

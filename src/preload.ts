@@ -46,9 +46,10 @@ contextBridge.exposeInMainWorld("aiAPI", {
   runPrompt: (
     engineName: string,
     prompt: string,
+    modelsOptions?: ModelOptions,
     remixOptions?: { responseID?: string; imageInput?: string }
   ) => {
-    return ipcRenderer.invoke("run-prompt", engineName, prompt, remixOptions);
+    return ipcRenderer.invoke("run-prompt", engineName, prompt, modelsOptions, remixOptions);
   },
   onResponseImage: (
     callback: (imageData: ResponseOutputItem.ImageGenerationCall) => void

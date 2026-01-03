@@ -32,6 +32,7 @@ const Prompt: FC<{
       .runPrompt(
         settings.modelEngine || DEFAULT_MODEL_ENGINE,
         prompt,
+        { model: settings.model || undefined },
         canRemix ? remixOptions : undefined
       )
       .then((data) => {

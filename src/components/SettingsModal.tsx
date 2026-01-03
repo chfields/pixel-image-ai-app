@@ -32,6 +32,9 @@ const SettingsModal: FC<SettingsModalProps> = ({
       currentSettings?.modelEngine ? [currentSettings.modelEngine] : ["openai"]
     )
   );
+  const [modelName, setModelName] = useState<string | undefined>(
+    currentSettings?.model
+  );
 
   const getApiKeyForEngine = async (engine: string): Promise<string> => {
     const apiKey = await window.secureApiKeyStorage.getApiKey(engine);
@@ -47,6 +50,7 @@ const SettingsModal: FC<SettingsModalProps> = ({
         const apiKey = await getApiKeyForEngine(modelEngine);
         console.log("Fetched API Key for engine:", modelEngine);
         setTempApiKey(apiKey);
+        setModelName(currentSettings?.model || "gpt-5.2");
       }
     };
     if (isOpen) {
@@ -121,12 +125,26 @@ const SettingsModal: FC<SettingsModalProps> = ({
                       );
                       setTempApiKey(e.target.value);
                     }}
-                    onClear={() =>{
+                    onClear={() => {
                       clearApiKeyForEngine(
                         (Array.from(modelEngineSelection)[0] as string) ||
                           "openai"
                       );
                       setTempApiKey("");
+                    }}
+                  />
+                  <Input
+                    disableAnimation
+                    isClearable
+                    label="Model Name (optional)"
+                    placeholder="e.g., gpt-4o, gpt-5.2"
+                    value={modelName}
+                    className="mt-4"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setModelName(e.target.value);
+                    }}
+                    onClear={() => {
+                      setModelName(undefined);
                     }}
                   />
                 </div>
@@ -145,6 +163,7 @@ const SettingsModal: FC<SettingsModalProps> = ({
                   }
                   onChangeSettings({
                     ...newSettings,
+                    model: modelName,
                   });
                   onClose();
                 }}
