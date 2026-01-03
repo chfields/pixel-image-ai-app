@@ -34,6 +34,7 @@ export class FileApi {
     data: string
   ): Promise<string> {
     const buffer = Buffer.from(data, "base64");
+    const pathSep = process.platform === "win32" ? "\\" : "/";
     // create directory if it doesn't exist
     if (!fs.existsSync(fileDirectory)) {
       fs.mkdirSync(fileDirectory, { recursive: true });
@@ -41,7 +42,7 @@ export class FileApi {
     // if file exists, add an index to the filename
     let finalFileName = fileName;
     let index = 1;
-    while (fs.existsSync(`${fileDirectory}/${finalFileName}`)) {
+    while (fs.existsSync(`${fileDirectory}${pathSep}${finalFileName}`)) {
       const nameParts = fileName.split(".");
       const baseName = nameParts.slice(0, -1).join(".");
       const extension = nameParts[nameParts.length - 1];
@@ -49,9 +50,9 @@ export class FileApi {
       index++;
     }
 
-    fs.writeFileSync(`${fileDirectory}/${finalFileName}`, buffer);
+    fs.writeFileSync(`${fileDirectory}${pathSep}${finalFileName}`, buffer);
 
-    return `${fileDirectory}/${finalFileName}`;
+    return `${fileDirectory}${pathSep}${finalFileName}`;
   }
 
   static async selectDirectory(): Promise<string[]> {
