@@ -102,13 +102,13 @@ const App: React.FC = () => {
       const lastofPath = appSettings.directory.split(pathSep).pop() || "image";
       const fileName = `${lastofPath}_${appSettings.elementType || "image"}.png`;
       const finalPath = await window.fileAPI.writeFileFromBase64(
-        `${appSettings?.directory}/images`,
+        `${appSettings?.directory}${pathSep}images`,
         fileName,
         png
       );
       // save source image as well
       await window.fileAPI.writeFileFromBase64(
-        `${appSettings?.directory}/images`,
+        `${appSettings?.directory}${pathSep}images`,
         `${lastofPath}_${appSettings.elementType}_source.png`,
         image
       );
@@ -140,7 +140,7 @@ const App: React.FC = () => {
                 size="sm"
                 variant="bordered"
                 onPress={() => {
-                  window.fileAPI.showFolder(`${appSettings?.directory}/images`);
+                  window.fileAPI.showFolder(`${appSettings?.directory}${pathSep}images`);
                 }}
               >
                 View Folder
