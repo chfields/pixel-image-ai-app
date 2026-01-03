@@ -16,6 +16,7 @@ dotenv.config();
 
 const config: ForgeConfig = {
   packagerConfig: {
+    icon: "./src/assets/pixel-icon",
     asar: {
       // Ensure sharp is unpacked from the asar archive
       unpack: "**/node_modules/{sharp,@img}/**/*",
