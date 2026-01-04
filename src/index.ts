@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme } from "electron";
 import { FileApi } from "./handlers/file";
 import { EngineFactory } from "./handlers/ai_engines/EngineFactory";
 import { ImageApi } from "./handlers/Image";
@@ -150,6 +150,8 @@ app.whenReady().then(() => {
   }).catch((err) => {
     console.error("Failed to initialize API key storage:", err);
   });
+
+  nativeTheme.themeSource = "dark";
 
   createWindow();
 });
