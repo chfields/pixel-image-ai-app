@@ -45,7 +45,7 @@ const config: ForgeConfig = {
           owner: "chfields",
           name: "pixel-image-ai-app",
         },
-        prerelease: false,
+        prerelease: true,
         draft: true,
       },
     },

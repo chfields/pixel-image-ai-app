@@ -1,6 +1,6 @@
 import { ApiKeyStorage } from "../ApiKeyStorage";
 import { OpenAIApi } from "./openai";
-
+import log from '../../main-logger';
 export class EngineFactory {
   static getEngine(engineName: string, apiKeyStorage: ApiKeyStorage) : AIEngine {
     const apiKey = apiKeyStorage.getApiKey(engineName);
@@ -22,11 +22,12 @@ export class EngineFactory {
     modelsOptions?: ModelOptions,
     remixOptions?: { responseID?: string; imageInput?: string }
   ): Promise<any> {
-    console.log(`Running prompt with engine: ${engine.engineName} and model: ${modelsOptions?.model}`);
+    log.info(`Running prompt with engine: ${engine.engineName} and model: ${modelsOptions?.model}`);
     return engine.runPrompt(event, prompt, modelsOptions, remixOptions);
   }
 
   static async stopCurrentResponse(engine: AIEngine): Promise<void> {
+    log.debug(`Stopping current response for engine: ${engine.engineName}`);
     return engine.stopCurrentResponse();
   }
 }

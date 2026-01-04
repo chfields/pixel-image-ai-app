@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { dialog, shell } from "electron";
+import log from '../main-logger';
 
 export class FileApi {
   static async readFile(filePath: string | undefined): Promise<string> {
@@ -18,7 +19,7 @@ export class FileApi {
       const base64Data = data.toString("base64");
       return base64Data;
     } catch (error) {
-      console.error("Failed to read file:", error);
+      log.error("Failed to read file:", error);
       return null;
     }
   }

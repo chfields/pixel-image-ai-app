@@ -4,6 +4,7 @@ import {
   ResponseOutputItem,
   ResponseReasoningSummaryTextDeltaEvent,
 } from "openai/resources/responses/responses";
+import log from '../../main-logger';
 
 export const SYSTEM_PROMPT = `You are a helpful image generator that can generate images for a pixel display.
 Generate images that are optimized for display on pixel-based lighting systems, such as those used in holiday light displays. The images should be clear and visually appealing when rendered on low-resolution grids of lights.
@@ -157,7 +158,7 @@ export class OpenAIApi implements AIEngine {
       );
 
       for await (const chunk of response) {
-        console.log("Received chunk of type:", chunk.type);
+        log.info("Received chunk of type:", chunk.type);
         switch (chunk.type) {
           case "response.completed":
             this.privateExtractImageFromResponse(event, chunk.response.output);
@@ -189,7 +190,7 @@ export class OpenAIApi implements AIEngine {
             });
             break;
           case "response.output_text.delta":
-            console.log("Output text delta:", chunk.delta);
+            log.debug("Output text delta:", chunk.delta);
             event.sender.send("ai-response-reasoning-summary-text-delta", {
               delta: chunk.delta,
             });
@@ -200,9 +201,9 @@ export class OpenAIApi implements AIEngine {
       }
     } catch (error) {
       if (error.name === "AbortError") {
-        console.log("AI response was aborted.");
+        log.info("AI response was aborted.");
       } else {
-        console.error("Error during AI response:", error);
+        log.error("Error during AI response:", error);
         throw error;
       }
     } finally {

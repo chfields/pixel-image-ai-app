@@ -1,4 +1,5 @@
 import sharp, { Channels, kernel } from "sharp";
+import log from '../main-logger';
 
 const ImageApi = {
   resizeImage: async (
@@ -45,7 +46,7 @@ const ImageApi = {
   ): Promise<string> => {
     const { cropX, cropY, zoom, width, height, sizeWidth, algorithm } =
       imageOptions;
-    console.log(
+    log.info(
       `Processing image with width: ${width}, sizeWidth: ${sizeWidth}, height: ${height}, zoom: ${zoom}, cropX: ${cropX}, cropY: ${cropY}`
     );
     const croppedImage = await ImageApi.cropImage(
@@ -59,7 +60,7 @@ const ImageApi = {
     const adjustedWidth =
       width == 100 ? Math.round(sizeWidth * zoom) : sizeWidth;
       // Math.round(sizeWidth * zoom);
-      console.log(`Resizing cropped image to width: ${adjustedWidth}, zoom: ${zoom}`);
+      log.info(`Resizing cropped image to width: ${adjustedWidth}, zoom: ${zoom}`);
 
     const resizedImage = await ImageApi.resizeImage(
       croppedImage,
