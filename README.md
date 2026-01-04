@@ -1,6 +1,6 @@
 # Pixel Image AI App
 
-[![license](https://img.shields.io/github/license/electron/forge.svg)](https://github.com/chfields/pixel-image-ai-app/blob/main/LICENSE) [![GitHub release (latest)](https://img.shields.io/github/v/release/chfields/pixel-image-ai-app?label=latest%20version)](https://github.com/chfields/pixel-image-ai-app/releases/latest)
+[![license](https://img.shields.io/badge/license-%20%20GNU%20GPLv3%20-green?style=plastic)](https://github.com/chfields/pixel-image-ai-app/blob/main/LICENSE) [![GitHub release (latest)](https://img.shields.io/github/v/release/chfields/pixel-image-ai-app?label=latest%20version)](https://github.com/chfields/pixel-image-ai-app/releases/latest)
 
 Brief
 ---
@@ -25,6 +25,6 @@ Prerequisites
 
 Usage
 -----
-- Video Link here:
+[![Demo](https://img.youtube.com/vi/qvAtXk0PJbE/maxresdefault.jpg)](www.youtube.com)
 
 
