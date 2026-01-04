@@ -19,7 +19,7 @@ Key features
 Prerequisites
 -------------
 - Openai Key: [Instructions Here](OpenAI.md)
-- Working on adding:  [LocalAI](https://localai.io/) 
+- Working on adding:  Hugging Face
 
 
 
