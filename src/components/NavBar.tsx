@@ -11,13 +11,7 @@ import {
   Tooltip,
   type Selection,
 } from "@heroui/react";
-import {
-  FC,
-  ChangeEvent,
-  useState,
-  KeyboardEvent,
-  useEffect,
-} from "react";
+import { FC, ChangeEvent, useState, KeyboardEvent, useEffect } from "react";
 import {
   CautionIcon,
   ClearIcon,
@@ -26,10 +20,11 @@ import {
   OpenIcon,
   SettingsIcon,
 } from "../assets/icons/MenuBar";
+import HistoryMenu from "./HistoryMenu";
 
 type AppNavBarProps = {
   settings: AppSettings;
-  onSettingsChange: (newSettings: AppSettings) => void; 
+  onSettingsChange: (newSettings: AppSettings) => void;
   validSettings: Promise<boolean>;
   actions?: {
     download: (showToast?: boolean) => Promise<string>;
@@ -37,6 +32,7 @@ type AppNavBarProps = {
     openExistingImage: () => Promise<void>;
     clearImage: () => void;
     openSettings: () => void;
+    selectHistoryItem: (item: InteractionRecord) => void;
   };
 };
 
@@ -112,7 +108,9 @@ const AppNavBar: FC<AppNavBarProps> = ({
             {settings?.directory
               ? `Directory: ${maskNames(settings.directory)}`
               : "Select Directory"}
-            {!(settings?.directory || null) && <CautionIcon color="#FFA500" width="16px" height="16px" />}
+            {!(settings?.directory || null) && (
+              <CautionIcon color="#FFA500" width="16px" height="16px" />
+            )}
           </Button>
         </NavbarItem>
         <NavbarItem>
@@ -167,13 +165,12 @@ const AppNavBar: FC<AppNavBarProps> = ({
             onSelectionChange={(newSelection: Selection) => {
               if (!settings) return;
               setElementType(newSelection);
-              const selectedElement =
-                Array.from(newSelection)[0] || "tree";
+              const selectedElement = Array.from(newSelection)[0] || "tree";
               onSettingsChange({
                 ...settings,
                 elementType: selectedElement as "tree" | "matrix",
               } as AppSettings);
-            }}  
+            }}
             selectionMode="single"
           >
             <DropdownItem key={"tree"}>Tree</DropdownItem>
@@ -194,6 +191,13 @@ const AppNavBar: FC<AppNavBarProps> = ({
             <OpenIcon width="16px" height="16px" /> Open Existing Image
           </Button>
         </NavbarItem>
+
+        <HistoryMenu
+          width="24px"
+          height="24px"
+          onSelectItem={(item) => actions?.selectHistoryItem(item)}
+          directoryPath={settings?.directory || ""}
+        />
         <NavbarItem>
           <Button
             variant="faded"
@@ -253,17 +257,18 @@ const AppNavBar: FC<AppNavBarProps> = ({
           >
             <Button
               variant="bordered"
-              color={ "primary" }
+              color={"primary"}
               className="min-h-[48px]"
               title="Settings"
               onPress={() => {
                 actions?.openSettings();
               }}
               endContent={
-                !hasValidSettings &&
-                <div className="m-1">
-                  <CautionIcon color="#FFA500" width="16px" height="16px" />
-                </div>
+                !hasValidSettings && (
+                  <div className="m-1">
+                    <CautionIcon color="#FFA500" width="16px" height="16px" />
+                  </div>
+                )
               }
             >
               <SettingsIcon width="24px" height="24px" fill="currentColor" />

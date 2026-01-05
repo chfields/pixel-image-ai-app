@@ -52,6 +52,14 @@ const Prompt: FC<{
           description: `Failed to generate image: ${error.message}`,
           color: "danger",
         } as ToastVariantProps);
+        window.historyAPI.saveInteraction(settings.directory, {
+          timestamp: Date.now(),
+          engineName: settings.modelEngine || DEFAULT_MODEL_ENGINE,
+          prompt: prompt,
+          image: null,
+          modelName: settings?.[settings.modelEngine]?.model || undefined,
+          error: error.message,
+        });
       })
       .finally(() => {
         setIsRunning(false);
@@ -79,6 +87,7 @@ const Prompt: FC<{
         engineName: settings.modelEngine || DEFAULT_MODEL_ENGINE,
         prompt: prompt,
         image: tempImageData,
+        modelName: settings?.[settings.modelEngine]?.model || undefined,
       });
     };
 

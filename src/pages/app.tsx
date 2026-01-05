@@ -154,6 +154,13 @@ const App: React.FC = () => {
     [pixels, pixelInfo, appSettings]
   );
 
+  const selectHistoryItem = useCallback(async (item: InteractionRecord) => {
+    console.log("Selected history item:", item);
+    if (item && item.image) {
+      setImage(item.image);
+    }
+  }, []);
+
   const copyToXlights = useCallback(async () => {
     if (!pixels || !pixelInfo) {
       alert("No pixel data to copy.");
@@ -235,6 +242,7 @@ Pictures	E_CHECKBOX_Pictures_PixelOffsets=0,E_CHECKBOX_Pictures_Shimmer=0,E_CHEC
           openExistingImage: openexistingImage,
           clearImage,
           openSettings,
+          selectHistoryItem,
         }}
       />
       <SettingsModal
