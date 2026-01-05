@@ -63,6 +63,13 @@ const SettingsModal: FC<SettingsModalProps> = ({
     };
     if (isOpen) {
       fetchApiKey();
+      setModelEngineSelection(
+        new Set(
+          currentSettings?.modelEngine
+            ? [currentSettings.modelEngine]
+            : ["openai"]
+        )
+      );
     }
   }, [currentSettings, isOpen]);
 
