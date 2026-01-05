@@ -7,5 +7,7 @@ declare interface AppSettings {
     },
     elementType?: "tree" | "matrix"
     modelEngine?: string
-    model?: string
+    [key: string]: {
+        model?: string
+    }
 }

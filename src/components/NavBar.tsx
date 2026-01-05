@@ -60,7 +60,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
     onSettingsChange({
       ...settings,
       dimensions: { ...settings?.dimensions, [dimension]: newInt },
-    });
+    } as AppSettings);
   };
   const [elementType, setElementType] = useState<Selection>(
     new Set([settings?.elementType])
@@ -105,7 +105,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
                 onSettingsChange({
                   ...settings,
                   directory: selectedDirectory,
-                });
+                } as AppSettings);
               }
             }}
           >
@@ -172,7 +172,7 @@ const AppNavBar: FC<AppNavBarProps> = ({
               onSettingsChange({
                 ...settings,
                 elementType: selectedElement as "tree" | "matrix",
-              });
+              } as AppSettings);
             }}  
             selectionMode="single"
           >

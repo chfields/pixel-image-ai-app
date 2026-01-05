@@ -12,7 +12,7 @@ import {
   SelectItem,
   Input,
 } from "@heroui/react";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 
 type SettingsModalProps = {
   isOpen: boolean;
@@ -32,9 +32,9 @@ const SettingsModal: FC<SettingsModalProps> = ({
       currentSettings?.modelEngine ? [currentSettings.modelEngine] : ["openai"]
     )
   );
-  const [modelName, setModelName] = useState<string | undefined>(
-    currentSettings?.model
-  );
+  const [availableEngines, setAvailableEngines] = useState<
+    { name: string; label: string }[]
+  >([]);
 
   const getApiKeyForEngine = async (engine: string): Promise<string> => {
     const apiKey = await window.secureApiKeyStorage.getApiKey(engine);
@@ -43,6 +43,15 @@ const SettingsModal: FC<SettingsModalProps> = ({
 
   const [tempApiKey, setTempApiKey] = useState<string>("");
 
+  const loadEngines = async () => {
+    const engines = await window.aiAPI.getAvailableEngines();
+    setAvailableEngines(engines);
+  };
+
+  useEffect(() => {
+    loadEngines();
+  }, []);
+
   useEffect(() => {
     const fetchApiKey = async () => {
       const modelEngine = currentSettings?.modelEngine || "openai";
@@ -50,7 +59,6 @@ const SettingsModal: FC<SettingsModalProps> = ({
         const apiKey = await getApiKeyForEngine(modelEngine);
         console.log("Fetched API Key for engine:", modelEngine);
         setTempApiKey(apiKey);
-        setModelName(currentSettings?.model || "gpt-5.2");
       }
     };
     if (isOpen) {
@@ -68,6 +76,10 @@ const SettingsModal: FC<SettingsModalProps> = ({
   const clearApiKeyForEngine = async (engine: string): Promise<void> => {
     await window.secureApiKeyStorage.deleteApiKey(engine);
   };
+
+  const currentEngine = useMemo(() => {
+    return (Array.from(modelEngineSelection)[0] as string) || "openai";
+  }, [modelEngineSelection]);
 
   return (
     <div>
@@ -94,20 +106,30 @@ const SettingsModal: FC<SettingsModalProps> = ({
               <Card className="p-4 mb-4">
                 <div className="flex flex-col max-w-md">
                   <Select
+                    disableAnimation
                     label="Model Engine"
                     placeholder="Select Model Engine"
                     selectedKeys={modelEngineSelection}
                     onSelectionChange={(newSelection: Selection) => {
                       setModelEngineSelection(newSelection);
-                      const selectedEngine =
-                        Array.from(newSelection)[0] || "openai";
+                      const selectedEngine = (Array.from(newSelection)[0] ||
+                        "openai") as string;
+                      const engineSettings =
+                        typeof currentSettings?.[selectedEngine] === "object"
+                          ? (currentSettings?.[selectedEngine] as {
+                              model?: string;
+                            })
+                          : { model: undefined };
                       onChangeSettings({
                         ...currentSettings,
-                        modelEngine: selectedEngine as string,
-                      });
+                        modelEngine: selectedEngine,
+                        [selectedEngine]: engineSettings,
+                      } as AppSettings);
                     }}
                   >
-                    <SelectItem key="openai">openai</SelectItem>
+                    {availableEngines.map((engine) => (
+                      <SelectItem key={engine.name}>{engine.label}</SelectItem>
+                    ))}
                   </Select>
                   <Input
                     disableAnimation
@@ -118,18 +140,11 @@ const SettingsModal: FC<SettingsModalProps> = ({
                     value={tempApiKey}
                     isClearable
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setApiKeyForEngine(
-                        (Array.from(modelEngineSelection)[0] as string) ||
-                          "openai",
-                        e.target.value
-                      );
+                      setApiKeyForEngine(currentEngine, e.target.value);
                       setTempApiKey(e.target.value);
                     }}
                     onClear={() => {
-                      clearApiKeyForEngine(
-                        (Array.from(modelEngineSelection)[0] as string) ||
-                          "openai"
-                      );
+                      clearApiKeyForEngine(currentEngine);
                       setTempApiKey("");
                     }}
                   />
@@ -138,13 +153,23 @@ const SettingsModal: FC<SettingsModalProps> = ({
                     isClearable
                     label="Model Name (optional)"
                     placeholder="e.g., gpt-4o, gpt-5.2"
-                    value={modelName}
+                    value={currentSettings?.[currentEngine]?.model || ""}
                     className="mt-4"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setModelName(e.target.value);
+                      onChangeSettings({
+                        ...currentSettings,
+                        [currentEngine]: {
+                          model: e.target.value,
+                        },
+                      });
                     }}
                     onClear={() => {
-                      setModelName(undefined);
+                      onChangeSettings({
+                        ...currentSettings,
+                        [currentEngine]: {
+                          model: undefined,
+                        },
+                      });
                     }}
                   />
                 </div>
@@ -152,30 +177,11 @@ const SettingsModal: FC<SettingsModalProps> = ({
             </ModalBody>
             <ModalFooter>
               <Button
-                color="primary"
-                onPress={() => {
-                  const newSettings = currentSettings;
-                  // add engine if not present
-                  if (!newSettings.modelEngine) {
-                    newSettings.modelEngine =
-                      (Array.from(modelEngineSelection)[0] as string) ||
-                      "openai";
-                  }
-                  onChangeSettings({
-                    ...newSettings,
-                    model: modelName,
-                  });
-                  onClose();
-                }}
-              >
-                Save Settings
-              </Button>
-              <Button
                 onPress={() => {
                   onClose();
                 }}
               >
-                Cancel
+                Close
               </Button>
             </ModalFooter>
           </ModalContent>

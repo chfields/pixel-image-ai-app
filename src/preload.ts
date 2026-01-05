@@ -79,6 +79,9 @@ contextBridge.exposeInMainWorld("aiAPI", {
   stopCurrentResponse: (engineName: string) => {
     return ipcRenderer.invoke("ai-stop-current-response", engineName);
   },
+  getAvailableEngines: () => {
+    return ipcRenderer.invoke("ai-get-available-engines");
+  },
 });
 
 contextBridge.exposeInMainWorld("clipboardAPI", {

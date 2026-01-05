@@ -81,7 +81,7 @@ const PreviewImage: FC<{
             mediaClassName: "bg-gray-700",
           }}
           // objectFit="contain"
-          showGrid={true}
+          showGrid={false}
         />
       )}
     </div>

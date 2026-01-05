@@ -18,6 +18,7 @@ declare global {
       onReasoningSummaryDelta: (callback: (data: string) => void) => void;
       onStatusUpdate: (callback: (data: { status: string }) => void) => void;
       stopCurrentResponse: (engineName: string) => Promise<void>;
+      getAvailableEngines: () => Promise<{ name: string; label: string }[]>;
     };
     imageAPI: {
       processImage: (imageData: string, imageOptions: ImageOptions) => Promise<string>;

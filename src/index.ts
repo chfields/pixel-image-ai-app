@@ -105,6 +105,9 @@ const createIpcHandlers = () => {
     }
     return await EngineFactory.stopCurrentResponse(engine);
   });
+  ipcMain.handle("ai-get-available-engines", () => {
+    return EngineFactory.getAvailableEngines();
+  });
   ipcMain.handle("process-image", (event, imageData, imageOptions) => {
     return ImageApi.processImage(imageData, imageOptions);
   });
