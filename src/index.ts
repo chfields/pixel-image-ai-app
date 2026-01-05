@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, nativeTheme, autoUpdater } from "electron";
 import { FileApi } from "./handlers/file";
-import { EngineFactory } from "./handlers/ai_engines/EngineFactory";
+import { AIEngineFactory } from "./handlers/AIEngineFactory";
 import { ImageApi } from "./handlers/Image";
 import { ClipboardApi } from "./handlers/ClipboardApi";
 import Store from "electron-store";
@@ -89,24 +89,24 @@ const createIpcHandlers = () => {
 
   ipcMain.handle("run-prompt", (event, engineName, prompt, modelsOptions, remixOptions) => {
     if (engineName !== engine?.engineName) {
-      engine = EngineFactory.getEngine(engineName, apiKeyStorage);
+      engine = AIEngineFactory.getEngine(engineName, apiKeyStorage);
       if (!engine) {
         throw new Error(`No API key found for engine: ${engineName}`);
       }
     }
-    return EngineFactory.runPrompt(engine, event, prompt, modelsOptions, remixOptions);
+    return AIEngineFactory.runPrompt(engine, event, prompt, modelsOptions, remixOptions);
   });
   ipcMain.handle("ai-stop-current-response", async (event, engineName) => {
     if (engineName !== engine?.engineName) {
-      engine = EngineFactory.getEngine(engineName, apiKeyStorage);
+      engine = AIEngineFactory.getEngine(engineName, apiKeyStorage);
       if (!engine) {
         throw new Error(`No API key found for engine: ${engineName}`);
       }
     }
-    return await EngineFactory.stopCurrentResponse(engine);
+    return await AIEngineFactory.stopCurrentResponse(engine);
   });
   ipcMain.handle("ai-get-available-engines", () => {
-    return EngineFactory.getAvailableEngines();
+    return AIEngineFactory.getAvailableEngines();
   });
   ipcMain.handle("process-image", (event, imageData, imageOptions) => {
     return ImageApi.processImage(imageData, imageOptions);
@@ -156,7 +156,7 @@ app.whenReady().then(() => {
   app.setName("Pixel Image AI App");
 
   apiKeyStorage.initialize().then(() => {
-    engine = EngineFactory.getEngine("openai", apiKeyStorage);
+    engine = AIEngineFactory.getEngine("openai", apiKeyStorage);
     log.info("API key storage initialized.");
     log.info("Engine initialized:", engine ? engine.engineName : "No engine");
   }).catch((err) => {

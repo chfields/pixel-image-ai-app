@@ -1,14 +1,14 @@
-import { ApiKeyStorage } from "../ApiKeyStorage";
-import { OpenAIApi } from "./openai";
-import { HuggingFaceApi } from ".//HuggingFaceApi";
-import log from "../../main-logger";
+import { ApiKeyStorage } from "./ApiKeyStorage";
+import { OpenAIApi } from "./ai_engines/openai";
+import { HuggingFaceApi } from "./ai_engines/HuggingFaceApi";
+import log from "../main-logger";
 
 const availabeEngines = [
   { name: "openai", label: "OpenAI", constructor: OpenAIApi },
   { name: "huggingface", label: "HuggingFace", constructor: HuggingFaceApi },
 ];
 
-export class EngineFactory {
+export class AIEngineFactory {
   static getEngine(engineName: string, apiKeyStorage: ApiKeyStorage): AIEngine {
     const apiKey = apiKeyStorage.getApiKey(engineName);
     if (!apiKey || apiKey.length === 0) {
