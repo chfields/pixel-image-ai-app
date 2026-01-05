@@ -17,6 +17,7 @@ declare global {
       onResponseCompleted: (callback: (data: { responseID: string }) => void) => void;
       onReasoningSummaryDelta: (callback: (data: string) => void) => void;
       onStatusUpdate: (callback: (data: { status: string }) => void) => void;
+      removeAIListeners: () => void;
       stopCurrentResponse: (engineName: string) => Promise<void>;
       getAvailableEngines: () => Promise<{ name: string; label: string }[]>;
     };
@@ -44,6 +45,11 @@ declare global {
     appSettingsAPI: {
       saveSettings: (settings: AppSettings) => Promise<void>;
       getSettings: () => Promise<AppSettings | undefined>;
+    };
+    historyAPI: {
+      saveInteraction: (currentDirectory: string, interaction: InteractionRecord) => Promise<void>;
+      getInteractions: (currentDirectory: string, limit?: number) => Promise<InteractionRecord[]>;
+      clearHistory: (currentDirectory: string) => Promise<void>;
     };
   }
 }

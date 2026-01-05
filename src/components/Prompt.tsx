@@ -1,4 +1,12 @@
-import { addToast, Button, Card, CardFooter, Spinner, Textarea, ToastVariantProps } from "@heroui/react";
+import {
+  addToast,
+  Button,
+  Card,
+  CardFooter,
+  Spinner,
+  Textarea,
+  ToastVariantProps,
+} from "@heroui/react";
 import { createRef, FC, useEffect, useMemo, useState } from "react";
 import ReasoningViewer from "./ReasoningViewer";
 import { RemixIcon, SparklesIcon, StopIcon } from "../assets/icons/Prompt";
@@ -37,7 +45,8 @@ const Prompt: FC<{
       )
       .then((data) => {
         console.log("File data:", data);
-      }).catch((error) => {
+      })
+      .catch((error) => {
         addToast({
           title: "Error",
           description: `Failed to generate image: ${error.message}`,
@@ -50,11 +59,13 @@ const Prompt: FC<{
   };
 
   useEffect(() => {
+    let tempImageData: string | null = null;
     const handleResponseImage = (imageData: any) => {
       console.log("Received image data:", imageData);
       // Handle the received image data (e.g., display it in the UI)
       if (imageData) {
         setImage(imageData.result);
+        tempImageData = imageData.result;
       }
     };
 
@@ -63,6 +74,12 @@ const Prompt: FC<{
       setResponseID(data.responseID);
       setIsRunning(false);
       // Handle the completion of the response if needed
+      window.historyAPI.saveInteraction(settings.directory, {
+        timestamp: Date.now(),
+        engineName: settings.modelEngine || DEFAULT_MODEL_ENGINE,
+        prompt: prompt,
+        image: tempImageData,
+      });
     };
 
     const handleReasoningSummaryDelta = (data: any) => {
@@ -79,7 +96,10 @@ const Prompt: FC<{
     window.aiAPI.onReasoningSummaryDelta(handleReasoningSummaryDelta);
     window.aiAPI.onResponseImage(handleResponseImage);
     window.aiAPI.onResponseCompleted(handleResponseCompleted);
-  }, []);
+    return () => {
+      window.aiAPI.removeAIListeners();
+    };
+  }, [settings?.directory, prompt]);
 
   useEffect(() => {
     if (reasoningViewerRef.current) {

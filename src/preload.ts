@@ -49,7 +49,13 @@ contextBridge.exposeInMainWorld("aiAPI", {
     modelsOptions?: ModelOptions,
     remixOptions?: { responseID?: string; imageInput?: string }
   ) => {
-    return ipcRenderer.invoke("run-prompt", engineName, prompt, modelsOptions, remixOptions);
+    return ipcRenderer.invoke(
+      "run-prompt",
+      engineName,
+      prompt,
+      modelsOptions,
+      remixOptions
+    );
   },
   onResponseImage: (
     callback: (imageData: ResponseOutputItem.ImageGenerationCall) => void
@@ -76,6 +82,12 @@ contextBridge.exposeInMainWorld("aiAPI", {
       callback(data);
     });
   },
+  removeAIListeners: () => {
+    ipcRenderer.removeAllListeners("ai-response-status-update");
+    ipcRenderer.removeAllListeners("ai-response-reasoning-summary-text-delta");
+    ipcRenderer.removeAllListeners("ai-response-image");
+    ipcRenderer.removeAllListeners("ai-response-completed");
+  },
   stopCurrentResponse: (engineName: string) => {
     return ipcRenderer.invoke("ai-stop-current-response", engineName);
   },
@@ -98,7 +110,6 @@ contextBridge.exposeInMainWorld("envVars", {
   platform: process.platform,
 });
 
-
 contextBridge.exposeInMainWorld("secureApiKeyStorage", {
   saveApiKey: (service: string, apiKey: string) => {
     return ipcRenderer.invoke("api-key-save", service, apiKey);
@@ -111,12 +122,34 @@ contextBridge.exposeInMainWorld("secureApiKeyStorage", {
   },
 });
 
-
 contextBridge.exposeInMainWorld("appSettingsAPI", {
   saveSettings: (settings: AppSettings) => {
     return ipcRenderer.invoke("settings-save", settings);
   },
   getSettings: () => {
     return ipcRenderer.invoke("settings-get");
+  },
+});
+
+contextBridge.exposeInMainWorld("historyAPI", {
+  saveInteraction: (
+    currentDirectory: string,
+    interaction: InteractionRecord
+  ) => {
+    return ipcRenderer.invoke(
+      "history-save-interaction",
+      currentDirectory,
+      interaction
+    );
+  },
+  getInteractions: (currentDirectory: string, limit?: number) => {
+    return ipcRenderer.invoke(
+      "history-get-interactions",
+      currentDirectory,
+      limit
+    );
+  },
+  clearHistory: (currentDirectory: string) => {
+    return ipcRenderer.invoke("history-clear", currentDirectory);
   },
 });
